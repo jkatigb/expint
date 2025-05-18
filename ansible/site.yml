@@ -10,3 +10,9 @@
   become: true
   roles:
     - webserver
+
+- name: Build load balancer
+  hosts: loadbalancer
+  become: true
+  roles:
+    - loadbalancer

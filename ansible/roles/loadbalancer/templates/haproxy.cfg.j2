@@ -1,0 +1,39 @@
+global
+    log /dev/log local0
+    daemon
+    user haproxy
+    group haproxy
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    timeout connect 5s
+    timeout client  30s
+    timeout server  30s
+    option  redispatch
+
+frontend website
+  bind :80
+  option forwardfor header X-Real-IP
+  http-request set-header X-Forwarded-Proto http
+  default_backend web_cluster
+
+backend web_cluster
+    balance roundrobin
+    cookie SRVID insert indirect nocache
+    option httpchk HEAD /
+    {% for host in groups['webservers'] %}
+    server {{ host }} {{ hostvars[host].ansible_host }}:80 check cookie {{ host }}
+    {% endfor %}
+
+listen tcp_range
+    mode tcp
+    bind *:60000-65000
+    balance roundrobin
+    option tcplog
+    stick-table type ip size 200k expire 60m
+    stick on src
+    {% for host in groups['webservers'] %}
+    server {{ host }} {{ hostvars[host].ansible_host }}:80 
+    {% endfor %}
