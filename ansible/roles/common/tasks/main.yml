@@ -1,0 +1,13 @@
+---
+- name: Ensure expensify exists
+  ansible.builtin.user:
+    name: expensify
+    shell: /bin/bash
+    groups: sudo
+    create_home: true
+
+- name: Add expensify's SSH key as authorized_key
+  ansible.posix.authorized_key:
+    user: "{{ expensify_user }}"
+    state: present
+    key: "{{ expensify_pubkey }}"

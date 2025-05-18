@@ -1,0 +1,5 @@
+expensify_user: "expensify"
+admin_user: "ubuntu"
+expensify_pubkey: "{{ lookup('file', 'files/expensify_id_rsa.pub') }}"
+
+ssh_public_key: "{{ lookup('file', 'files/expensify_id_rsa.pub') }}"
