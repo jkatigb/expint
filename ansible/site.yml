@@ -1,18 +1,28 @@
 ---
-- name: Configure all nodes
+# - name: Configure all nodes
+#   hosts: all
+#   become: true
+#   roles:
+#     - common
+
+# - name: Build web tier
+#   hosts: webservers
+#   become: true
+#   roles:
+#     - webserver
+
+# - name: Build load balancer
+#   hosts: loadbalancer
+#   become: true
+#   roles:
+#     - loadbalancer
+# - name: Build monitoring server
+#   hosts: monitoring
+#   become: true
+#   roles:
+#     - monitoring
+- name: Secure environment
   hosts: all
   become: true
   roles:
-    - common
-
-- name: Build web tier
-  hosts: webservers
-  become: true
-  roles:
-    - webserver
-
-- name: Build load balancer
-  hosts: loadbalancer
-  become: true
-  roles:
-    - loadbalancer
+    - security
