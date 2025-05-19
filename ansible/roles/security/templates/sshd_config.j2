@@ -1,0 +1,23 @@
+
+Port 22
+Protocol 2
+SyslogFacility AUTH
+LogLevel INFO
+LoginGraceTime 120
+PermitRootLogin no
+StrictModes yes
+MaxAuthTries 6
+MaxSessions 10
+AllowUsers ubuntu {{ expensify_user }}
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding no
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+AllowTcpForwarding yes
+PermitTunnel yes
