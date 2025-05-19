@@ -4,7 +4,11 @@
     state: reset
     direction: incoming
 
-# THIS NEEDS TO BE DONE FIRST
+- name: UFW default-deny and enable
+  community.general.ufw:
+    state: disabled
+    default: deny
+
 - name: UFW public ssh for loadbalancer
   community.general.ufw:
     rule: allow
@@ -27,10 +31,9 @@
     - 80
   when: "'internal' in group_names"
 
-- name: UFW default-deny and enable
+- name: UFW enable
   community.general.ufw:
     state: enabled
-    default: deny
 
 - name: Harden SSH
   ansible.builtin.template:
