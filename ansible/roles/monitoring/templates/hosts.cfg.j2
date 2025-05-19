@@ -1,0 +1,8 @@
+{% for host in ['web01', 'web02', 'loadbalancer'] %}
+   define host{
+	   use             linux-server
+	   host_name       {{ host }}
+	   alias           {{ host | replace('web', 'Web-Server ') | upper }}
+	   address         {{ hostvars[host].ansible_host }}
+   }
+{% endfor %}

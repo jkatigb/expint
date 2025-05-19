@@ -1,0 +1,4 @@
+- name: Restart nagios
+  ansible.builtin.systemd:
+    name: nagios4
+    state: restarted

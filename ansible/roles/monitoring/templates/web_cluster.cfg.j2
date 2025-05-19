@@ -1,0 +1,19 @@
+define command{
+	command_name    check_web_cluster
+	command_line    /usr/local/nagios/libexec/check_web_cluster.py
+}
+
+define hostgroup{
+	hostgroup_name  webservers
+	alias           Web Servers
+	members         web01,web02
+}
+
+define service{
+	use                 generic-service
+	host_name           loadbalancer
+	service_description Web Cluster Health
+	check_command       check_web_cluster
+	check_interval      1
+	retry_interval      0.5
+}

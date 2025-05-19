@@ -1,0 +1,47 @@
+---
+- name: Install Nagios Core + plugins + dependencies
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop:
+    - nagios4
+    - nagios-plugins
+    - python3-pip
+    - python3
+
+- name: Make sure /usr/local/nagios/libexec/ exists
+  ansible.builtin.file:
+    path: /usr/local/nagios/libexec/
+    state: directory
+    mode: "0755"
+
+- name: Copy over custom plugin
+  ansible.builtin.copy:
+    src: check_web_cluster.py
+    dest: /usr/local/nagios/libexec/check_web_cluster.py
+    mode: "0755"
+
+- name: Copy over web_cluster.json
+  ansible.builtin.template:
+    src: web_cluster.json.j2
+    dest: /etc/nagios4/web_cluster.json
+    mode: "0644"
+
+- name: Deploy host + cluster configs
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/etc/nagios4/conf.d/{{ item.dest }}"
+    mode: "0644"
+  with_items:
+    - { src: "hosts.cfg.j2", dest: "hosts.cfg" }
+    - { src: "web_cluster.cfg.j2", dest: "web_cluster.cfg" }
+  notify: Restart nagios
+
+# test with ssh -L 8080:0.0.0.0:80 ubuntu@54.190.174.232
+# proxyJump ssh -J ubuntu@54.185.150.59 -L 8080:localhost:80 ubuntu@54.190.174.232
+- name: Ensure Nagios is running
+  ansible.builtin.service:
+    name: nagios4
+    state: started
+    enabled: true

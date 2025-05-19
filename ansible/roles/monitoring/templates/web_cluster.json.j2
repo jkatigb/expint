@@ -1,0 +1,3 @@
+{
+	"servers": [{% for host in groups['webservers'] %}"{{ hostvars[host].ansible_host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+}
