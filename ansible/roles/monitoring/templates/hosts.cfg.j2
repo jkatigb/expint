@@ -1,4 +1,4 @@
-{% for host in ['web01', 'web02', 'loadbalancer'] %}
+{% for host in groups['webservers'] + groups['loadbalancer'] %}
    define host{
 	   use             linux-server
 	   host_name       {{ host }}

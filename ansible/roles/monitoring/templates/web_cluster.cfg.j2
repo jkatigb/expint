@@ -6,12 +6,14 @@ define command{
 define hostgroup{
 	hostgroup_name  webservers
 	alias           Web Servers
-	members         web01,web02
+	members         {% for host in groups['webservers'] %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}
+
 }
 
 define service{
 	use                 generic-service
-	host_name           loadbalancer
+	host_name           {% for host in groups['loadbalancer'] %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}
+	
 	service_description Web Cluster Health
 	check_command       check_web_cluster
 	check_interval      1
