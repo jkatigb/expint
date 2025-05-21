@@ -15,7 +15,7 @@ defaults
 
 frontend website
   bind :80
-  option forwardfor header X-Real-IP
+  option forwardfor
   http-request set-header X-Forwarded-Proto http
   default_backend web_cluster
 
