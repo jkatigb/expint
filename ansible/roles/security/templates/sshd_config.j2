@@ -8,7 +8,7 @@ PermitRootLogin no
 StrictModes yes
 MaxAuthTries 6
 MaxSessions 10
-AllowUsers ubuntu {{ expensify_user }}
+AllowUsers {{ ansible_user }} {{ expensify_user }}
 PubkeyAuthentication yes
 AuthorizedKeysFile .ssh/authorized_keys
 PasswordAuthentication no

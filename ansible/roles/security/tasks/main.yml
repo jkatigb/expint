@@ -25,15 +25,29 @@
     rule: allow
     port: "{{ item }}"
     proto: tcp
-    from_ip: "{{ hostvars['loadbalancer'].ansible_host }}"
+    from_ip: "{{ hostvars['lb'].ansible_host }}"
   loop:
     - 22
     - 80
   when: "'internal' in group_names"
 
-- name: UFW enable
+- name: UFW allow HTTP from monitoring server to webservers
+  community.general.ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+    from_ip: "{{ hostvars['mon'].ansible_host }}"
+  when: "'webservers' in group_names"
+
+- name: UFW enable internal group
   community.general.ufw:
     state: enabled
+  when: "'internal' in group_names"
+
+- name: UFW enable loadbalancer group
+  community.general.ufw:
+    state: enabled
+  when: "'loadbalancer' in group_names"
 
 - name: Harden SSH
   ansible.builtin.template:
