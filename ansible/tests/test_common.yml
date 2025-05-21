@@ -1,0 +1,80 @@
+---
+- name: Verify Environment Configuration
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    expensify_home: "/home/{{ expensify_user }}"
+    expensify_authorized_keys_path: "{{ expensify_home }}/.ssh/authorized_keys"
+    expensify_ssh_key_substring: "{{ lookup('file', '../files/expensify_id_rsa.pub') }}"
+
+  tasks:
+    - name: "USER | Verify user configuration"
+      block:
+        - name: "USER | Check user existence"
+          ansible.builtin.command: "id {{ expensify_user }}"
+          register: user_check
+          changed_when: false
+
+        - name: "USER | Assert user existence (from id command)"
+          ansible.builtin.assert:
+            that:
+              - user_check.rc == 0
+            success_msg: "User '{{ expensify_user }}' exists (verified with 'id' command)."
+            fail_msg: "User '{{ expensify_user }}' not found (verified with 'id' command)."
+
+        - name: "USER | Check user sudo privileges"
+          ansible.builtin.command: "sudo -l -U {{ expensify_user }}"
+          register: sudo_check
+          changed_when: false
+          failed_when:
+            - "sudo_check.rc != 0"
+            - 'not ("(ALL : ALL) ALL" in sudo_check.stdout)'
+            - 'not ("NOPASSWD: ALL" in sudo_check.stdout)'
+
+        - name: "USER | Verify can execute sudo non-interactively"
+          ansible.builtin.command: "sudo -u {{ expensify_user }} sudo -n true"
+          register: sudo_n_test
+          changed_when: false
+          ignore_errors: true
+
+        - name: "USER | Assert passwordless sudo execution"
+          ansible.builtin.assert:
+            that:
+              - sudo_n_test.rc == 0
+
+        - name: "USER | Check user SSH authorized_keys"
+          ansible.builtin.slurp:
+            src: "{{ expensify_authorized_keys_path }}"
+          register: ssh_keys_content
+
+        - name: "USER | Assert user SSH key presence"
+          ansible.builtin.assert:
+            that:
+              - "expensify_ssh_key_substring in (ssh_keys_content.content | b64decode)"
+            success_msg: "SSH key for '{{ expensify_user }}' found."
+            fail_msg: "SSH key for '{{ expensify_user }}' not found or incorrect in {{ expensify_authorized_keys_path }}."
+
+        - name: "USER | Check .ssh directory and authorized_keys permissions"
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          loop:
+            - "{{ expensify_home }}/.ssh"
+            - "{{ expensify_authorized_keys_path }}"
+          register: ssh_file_stats
+
+        - name: "USER | Assert .ssh directory permissions (700)"
+          ansible.builtin.assert:
+            that:
+              - item.stat.exists
+              - item.stat.mode == '0700'
+              - item.stat.pw_name == expensify_user
+          loop: "{{ ssh_file_stats.results | selectattr('item', 'equalto', expensify_home + '/.ssh') | list }}"
+
+        - name: "USER | Assert authorized_keys permissions (600)"
+          ansible.builtin.assert:
+            that:
+              - item.stat.exists
+              - item.stat.mode == '0600'
+              - item.stat.pw_name == expensify_user
+          loop: "{{ ssh_file_stats.results | selectattr('item', 'match', expensify_authorized_keys_path) | list }}"

@@ -1,0 +1,184 @@
+---
+- name: Verify Nagios Configuration and Custom Check
+  hosts: monitoring # Assuming your Nagios server is in this group
+  become: true
+  gather_facts: true
+
+  vars:
+    nagios_service_name: "nagios4.service"
+    nagios_package_name: "nagios4"
+    nagios_config_dir: "/etc/nagios4/conf.d"
+    nagios_webservers_config: "{{ nagios_config_dir }}/web_cluster.cfg"
+    nagios_loadbalancer_config: "{{ nagios_config_dir }}/web_cluster.cfg"
+    custom_check_script_path: "/usr/local/nagios/libexec/check_web_cluster.py"
+    webserver_list_file_path: "/etc/nagios4/web_cluster.json"
+    webserver_nginx_service_name: "nginx"
+
+  tasks:
+    - name: Check if Nagios package is installed
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert Nagios package installation
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.packages[nagios_package_name] is defined or ansible_facts.packages[nagios_package_name | lower] is defined"
+        fail_msg: "{{ nagios_package_name }} package is not installed."
+        success_msg: "{{ nagios_package_name }} package is installed."
+
+    - name: Check Nagios service status
+      ansible.builtin.service_facts:
+
+    - name: Assert Nagios service is running and enabled
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.services[nagios_service_name].state == 'running'"
+        fail_msg: >
+          Nagios service ({{ nagios_service_name }}) is not running or not enabled.
+          State: {{ ansible_facts.services[nagios_service_name].state }},
+        success_msg: "Nagios service ({{ nagios_service_name }}) is running and enabled."
+
+    - name: Check if Nagios webservers configuration file exists
+      ansible.builtin.stat:
+        path: "{{ nagios_webservers_config }}"
+      register: webservers_cfg_stat
+
+    - name: Assert Nagios webservers configuration file exists
+      ansible.builtin.assert:
+        that:
+          - "webservers_cfg_stat.stat.exists and webservers_cfg_stat.stat.isreg"
+        fail_msg: "Nagios webservers configuration file ({{ nagios_webservers_config }}) does not exist or is not a regular file."
+        success_msg: "Nagios webservers configuration file ({{ nagios_webservers_config }}) exists."
+
+    - name: Check if Nagios load balancer configuration file exists
+      ansible.builtin.stat:
+        path: "{{ nagios_loadbalancer_config }}"
+      register: loadbalancer_cfg_stat
+
+    - name: Assert Nagios load balancer configuration file exists
+      ansible.builtin.assert:
+        that:
+          - "loadbalancer_cfg_stat.stat.exists and loadbalancer_cfg_stat.stat.isreg"
+        fail_msg: "Nagios load balancer configuration file ({{ nagios_loadbalancer_config }}) does not exist or is not a regular file."
+        success_msg: "Nagios load balancer configuration file ({{ nagios_loadbalancer_config }}) exists."
+
+    - name: Check if custom Nagios Python check script exists and is executable
+      ansible.builtin.stat:
+        path: "{{ custom_check_script_path }}"
+      register: custom_check_script_stat
+
+    - name: Assert custom Nagios Python check script exists
+      ansible.builtin.assert:
+        that:
+          - "custom_check_script_stat.stat.exists and custom_check_script_stat.stat.isreg"
+        fail_msg: "Custom Nagios Python check script ({{ custom_check_script_path }}) does not exist or is not a regular file."
+        success_msg: "Custom Nagios Python check script ({{ custom_check_script_path }}) exists."
+
+    - name: Assert custom Nagios Python check script is executable
+      ansible.builtin.assert:
+        that:
+          - "custom_check_script_stat.stat.executable"
+        fail_msg: "Custom Nagios Python check script ({{ custom_check_script_path }}) is not executable."
+        success_msg: "Custom Nagios Python check script ({{ custom_check_script_path }}) is executable."
+      when: custom_check_script_stat.stat.exists # Only run if the file exists
+
+    - name: Check if webserver list file for custom check exists
+      ansible.builtin.stat:
+        path: "{{ webserver_list_file_path }}"
+      register: webserver_list_file_stat
+
+    - name: Assert webserver list file for custom check exists
+      ansible.builtin.assert:
+        that:
+          - "webserver_list_file_stat.stat.exists and webserver_list_file_stat.stat.isreg"
+        fail_msg: "Webserver list file ({{ webserver_list_file_path }}) for custom check does not exist or is not a regular file."
+        success_msg: "Webserver list file ({{ webserver_list_file_path }}) for custom check exists."
+
+    - name: Define webserver hostnames for tests from 'webservers' group
+      ansible.builtin.set_fact:
+        webserver_list_for_tests: "{{ groups['webservers'] | default([]) }}"
+        webserver1_for_tests: "{{ (groups['webservers'] | default([]))[0] if (groups['webservers'] | default([]) | length) > 0 else none }}"
+      run_once: true 
+
+    - name: Ensure Nginx is running on all webservers before tests
+      ansible.builtin.service:
+        name: "{{ webserver_nginx_service_name }}"
+        state: started
+      delegate_to: "{{ item }}"
+      loop: "{{ webserver_list_for_tests }}"
+      when: webserver_list_for_tests is defined and (webserver_list_for_tests | length) > 0
+      failed_when: false # Continue if a webserver is already down or Nginx not there, tests will reveal status
+
+    # == Test Scenario 1: One webserver offline (WARNING) ==
+    - name: Test - One Webserver Offline (WARNING)
+      when: webserver1_for_tests is not none
+      block:
+        - name: (SETUP) Stop Nginx on one webserver ({{ webserver1_for_tests }})
+          ansible.builtin.service:
+            name: "{{ webserver_nginx_service_name }}"
+            state: stopped
+          delegate_to: "{{ webserver1_for_tests }}"
+
+        - name: Delay for 5 seconds to ensure service is stopped and check can detect it
+          ansible.builtin.pause:
+            seconds: 5
+
+        - name: (TEST) Execute Nagios check script (expect WARNING)
+          ansible.builtin.command: "{{ custom_check_script_path }}" 
+          register: check_warning_result
+          changed_when: false
+          failed_when: false 
+
+        - name: (ASSERT) Verify Nagios script WARNING output and exit code
+          ansible.builtin.assert:
+            that:
+              - "check_warning_result.rc == 1" 
+              - "'WARNING' in check_warning_result.stdout" 
+            fail_msg: "Script did not return WARNING as expected. RC: {{ check_warning_result.rc }}. STDOUT: {{ check_warning_result.stdout }}"
+            success_msg: "Script correctly returned WARNING when one webserver is offline."
+
+      always:
+        - name: (CLEANUP) Ensure Nginx is running on {{ webserver1_for_tests }}
+          ansible.builtin.service:
+            name: "{{ webserver_nginx_service_name }}"
+            state: started
+          delegate_to: "{{ webserver1_for_tests }}"
+          when: webserver1_for_tests is not none
+
+    # == Test Scenario 2: All (Both, if >=2) webservers offline (CRITICAL/FAILURE) ==
+    - name: Test - All Webservers Offline (CRITICAL/FAILURE)
+      when: webserver_list_for_tests is defined and (webserver_list_for_tests | length) >= 1 # Test CRITICAL if any server, but message implies 'both' for >=2
+      block:
+        - name: (SETUP) Stop Nginx on all webservers in 'webservers' group
+          ansible.builtin.service:
+            name: "{{ webserver_nginx_service_name }}"
+            state: stopped
+          delegate_to: "{{ item }}"
+          loop: "{{ webserver_list_for_tests }}"
+
+        - name: Delay for 5 seconds to ensure services are stopped and check can detect it
+          ansible.builtin.pause:
+            seconds: 5
+
+        - name: (TEST) Execute Nagios check script (expect CRITICAL/FAILURE)
+          ansible.builtin.command: "{{ custom_check_script_path }}"
+          register: check_critical_result
+          changed_when: false
+          failed_when: false 
+
+        - name: (ASSERT) Verify Nagios script CRITICAL/FAILURE output and exit code
+          ansible.builtin.assert:
+            that:
+              - "check_critical_result.rc == 2" 
+              - "'CRITICAL' in check_critical_result.stdout or 'FAILURE' in check_critical_result.stdout" 
+            fail_msg: "Script did not return CRITICAL/FAILURE as expected. RC: {{ check_critical_result.rc }}. STDOUT: {{ check_critical_result.stdout }}"
+            success_msg: "Script correctly returned CRITICAL/FAILURE when all webservers are offline."
+
+      always:
+        - name: (CLEANUP) Ensure Nginx is running on all webservers
+          ansible.builtin.service:
+            name: "{{ webserver_nginx_service_name }}"
+            state: started
+          delegate_to: "{{ item }}"
+          loop: "{{ webserver_list_for_tests }}"
+          when: webserver_list_for_tests is defined and (webserver_list_for_tests | length) > 0

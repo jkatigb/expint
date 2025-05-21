@@ -1,0 +1,329 @@
+---
+- name: Gather Facts and Set Controller Public IP for Localhost
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: "Get controller's public IPv4 address using curl -4"
+      ansible.builtin.command: "curl -4 -s ifconfig.me"
+      register: controller_public_ip_cmd
+      changed_when: false
+
+    - name: Set true_controller_ip fact with public IPv4 address
+      ansible.builtin.set_fact:
+        true_controller_ip: "{{ controller_public_ip_cmd.stdout | trim }}"
+      when: controller_public_ip_cmd.rc == 0 and controller_public_ip_cmd.stdout is defined and controller_public_ip_cmd.stdout | trim != ""
+
+    - name: Fail if controller public IPv4 could not be determined
+      ansible.builtin.fail:
+        msg: "RC={{ controller_public_ip_cmd.rc }} Out={{ controller_public_ip_cmd.stdout }} Err={{ controller_public_ip_cmd.stderr }}"
+      when: true_controller_ip is not defined
+
+    - name: Debug true_controller_ip (Public IPv4)
+      ansible.builtin.debug:
+        var: true_controller_ip
+
+- name: Gather Facts about Load Balancer and Controller
+  hosts: loadbalancer
+  gather_facts: true
+  tasks:
+    - name: Get Load Balancer IP
+      ansible.builtin.set_fact:
+        loadbalancer_ip: "{{ ansible_host }}"
+
+- name: Ensure Webservers are Initially Healthy
+  hosts: webservers
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Ensure Nginx service is running on webservers
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: started
+        enabled: true
+      register: nginx_start_status
+
+      failed_when: "nginx_start_status is failed and 'Could not find the requested service nginx' not in nginx_start_status.msg"
+
+    - name: "Verify Nginx serving content locally on webservers"
+      ansible.builtin.uri:
+        url: http://localhost/index.html
+        return_content: true
+        method: GET
+      register: local_web_content
+      failed_when: "'Hello, World' not in local_web_content.content"
+
+- name: Test Load Balancer - Port Forwarding, Basic Distribution, Original IP
+  hosts: localhost
+  gather_facts: false
+  vars:
+    loadbalancer_ip: "{{ hostvars[groups['loadbalancer'][0]]['loadbalancer_ip'] }}"
+    controller_ip: "{{ hostvars['localhost']['true_controller_ip'] }}"
+    ports_to_test: [60000, 62500, 65000]
+    webserver_hosts: "{{ groups['webservers'] }}"
+  tasks:
+    - name: Debug LB IP and Controller IP
+      ansible.builtin.debug:
+        msg: "Testing LB at {{ loadbalancer_ip }} from controller {{ controller_ip }}. Webservers: {{ webserver_hosts }}"
+
+    - name: Test Port Forwarding for port {{ item }}
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:{{ item }}/index.html"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: lb_port_response
+      loop: "{{ ports_to_test }}"
+      changed_when: false
+      failed_when: "'Hello, World' not in lb_port_response.content"
+
+    - name: "Execute requests to get SRVID cookies"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: true
+      register: lb_distribution_response
+      loop: "{{ range(1, 3) | list }}"
+      changed_when: false
+
+    - name: "Debug Load Distribution Response"
+      ansible.builtin.debug:
+        var: lb_distribution_response
+
+    - name: "Extract SRVIDs from initial request batch"
+      ansible.builtin.set_fact:
+        initial_srvids: "{{ lb_distribution_response.results | map(attribute='cookies') | map(attribute='SRVID') | list }}"
+        initial_request_count: "{{ lb_distribution_response.results | length }}"
+        unique_initial_srvid_count: "{{ (lb_distribution_response.results | map(attribute='cookies') | map(attribute='SRVID') | list | unique) | length }}"
+        available_webservers_count: "{{ groups['webservers'] | length }}"
+
+    - name: "Set expected unique SRVID count"
+      ansible.builtin.set_fact:
+        expected_unique_srvid_count: "{{ 2 if (initial_request_count | int == 2 and available_webservers_count | int >= 2) else 1 }}"
+
+    - name: Assert SRVIDs are set and appropriately distributed
+      ansible.builtin.assert:
+        that:
+          - initial_srvids | select('undefined') | length == 0
+          - initial_srvids | length == initial_request_count | int
+          - unique_initial_srvid_count == expected_unique_srvid_count
+        fail_msg: >-
+          ERR - SRVIDs: {{ initial_srvids }}. Unique: {{ unique_initial_srvid_count }}.
+          Expected unique: {{ expected_unique_srvid_count }}.
+          (Req: {{initial_request_count}}, Srv_avail: {{available_webservers_count}})
+      when: initial_request_count | int > 0
+
+    - name: "Test Original Client IP (X-Forwarded-For) - Make request and identify backend via SRVID cookie"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: false
+      register: xff_test_request_for_cookie
+      changed_when: false
+
+    - name: "Set xff_backend_server_name from SRVID cookie"
+      ansible.builtin.set_fact:
+        xff_backend_server_name: "{{ xff_test_request_for_cookie.cookies.SRVID }}"
+      when: xff_test_request_for_cookie.cookies.SRVID is defined
+
+    - name: "Test Original Client IP - Get backend server IP"
+      ansible.builtin.set_fact:
+        xff_backend_server_ip: "{{ hostvars[xff_backend_server_name]['ansible_host'] }}"
+      when: xff_backend_server_name in hostvars
+
+    - name: "Debug controller_ip before grep"
+      ansible.builtin.debug:
+        var: controller_ip
+
+    - name: "Test Original Client IP - Check Nginx access log on {{ xff_backend_server_name | default('N/A') }}"
+      ansible.builtin.shell: "grep '{{ controller_ip }}' /var/log/nginx/access.log | tail -n 5"
+      register: nginx_log_check
+      delegate_to: "{{ xff_backend_server_name }}"
+      become: true
+      changed_when: false
+      when: xff_backend_server_name is defined and xff_backend_server_name in hostvars
+      ignore_errors: true
+
+    - name: "Debug output of grep command for XFF check"
+      ansible.builtin.debug:
+        var: nginx_log_check
+      when: xff_backend_server_name is defined and xff_backend_server_name in hostvars and nginx_log_check is defined
+
+    - name: "Assert controller IP (X-Forwarded-For) was found in backend logs"
+      ansible.builtin.assert:
+        that:
+          - "nginx_log_check.rc == 0"
+          - "controller_ip in nginx_log_check.stdout"
+        fail_msg: >-
+          XFF Error: Controller IP {{ controller_ip }} not found in Nginx logs
+          on {{ xff_backend_server_name | default('N/A') }}. Grep Output: {{ nginx_log_check.stdout | default('N/A') }}
+        success_msg: >-
+          XFF OK: Controller IP {{ controller_ip }} found in Nginx logs
+          on {{ xff_backend_server_name | default('N/A') }}.
+      when: xff_backend_server_name is defined and xff_backend_server_name in hostvars and nginx_log_check is defined
+
+- name: Test Load Balancer - Sticky Sessions (Normal Operation)
+  hosts: localhost
+  gather_facts: false
+  vars:
+    loadbalancer_ip: "{{ hostvars[groups['loadbalancer'][0]]['loadbalancer_ip'] }}"
+  tasks:
+    - name: "Sticky Sessions (Normal) - Initial request to get backend server via SRVID cookie"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: false
+      register: sticky_initial_req_for_cookie
+      changed_when: false
+
+    - name: "Set sticky_server_s1_name from SRVID cookie"
+      ansible.builtin.set_fact:
+        sticky_server_s1_name: "{{ sticky_initial_req_for_cookie.cookies.SRVID }}"
+      when: sticky_initial_req_for_cookie.cookies.SRVID is defined
+
+    - name: "Sticky Sessions (Normal) - Subsequent requests (expecting server {{ sticky_server_s1_name | default('N/A') }})"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: true
+        headers:
+          Cookie: "SRVID={{ sticky_server_s1_name }}"
+      register: stkynext_req
+      loop: "{{ range(1, 6) | list }}"
+      changed_when: false
+      failed_when: "sticky_server_s1_name not in stkynext_req.content"
+      when: sticky_server_s1_name is defined
+
+    - name: "Sticky Sessions (Normal) - Assert all subsequent requests hit {{ sticky_server_s1_name | default('N/A') }}"
+      ansible.builtin.assert:
+        that:
+          - (stkynext_req.results | map(attribute='content') | select('search', sticky_server_s1_name) | list | length) == (stkynext_req.results | length)
+        fail_msg: "Not all subsequent requests hit {{ sticky_server_s1_name }}. Results: {{ stkynext_req.results | map(attribute='content') | list }}"
+        success_msg: "All subsequent requests correctly hit {{ sticky_server_s1_name }}."
+      when: sticky_server_s1_name is defined and stkynext_req.results is defined and (stkynext_req.results | length > 0)
+
+- name: Test Load Balancer - Sticky Sessions (Failover)
+  hosts: localhost
+  gather_facts: false
+  vars:
+    loadbalancer_ip: "{{ hostvars[groups['loadbalancer'][0]]['loadbalancer_ip'] }}"
+    s1_server_name_from_normal_test: "{{ hostvars['localhost']['sticky_server_s1_name'] }}"
+    all_webservers: "{{ groups['webservers'] }}"
+  tasks:
+    - name: "Sticky Failover - Identify S1 (to kill) and potential S2"
+      ansible.builtin.set_fact:
+        s1_to_kill: "{{ s1_server_name_from_normal_test }}"
+        s2_failover_candidate: "{{ (all_webservers | difference([s1_server_name_from_normal_test])) | first | default(none) }}"
+      when: s1_server_name_from_normal_test is defined
+
+    - name: "Sticky Failover - Skip if only one webserver or S1 not identified"
+      ansible.builtin.meta: end_play
+      when: (s1_server_name_from_normal_test is not defined) or (s2_failover_candidate is none) or (all_webservers | length < 2)
+
+    - name: "Sticky Failover - Kill Nginx on S1 ({{ s1_to_kill | default('N/A') }})"
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: stopped
+      delegate_to: "{{ s1_to_kill }}"
+      become: true
+      when: s1_to_kill is defined
+
+    - name: "Sticky Failover - Wait for LB to detect S1 failure"
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: "Sticky Failover - Request after S1 down (expecting S2: {{ s2_failover_candidate | default('N/A') }})"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: true
+        headers:
+          Cookie: "SRVID={{ sticky_initial_req_for_cookie.cookies.SRVID }}"
+      register: failover_req_to_s2
+      changed_when: false
+      failed_when: "s2_failover_candidate not in failover_req_to_s2.content"
+      when: s2_failover_candidate is defined
+
+    - name: "Sticky Failover - Set S2 as the new sticky server"
+      ansible.builtin.set_fact:
+        sticky_server_s2_name: "{{ s2_failover_candidate }}"
+      when: s2_failover_candidate is defined and s2_failover_candidate in failover_req_to_s2.content
+
+    - name: "Sticky Failover - Subsequent requests (expecting S2: {{ sticky_server_s2_name | default('N/A') }})"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: true
+        headers:
+          Cookie: "SRVID={{ sticky_server_s2_name }}"
+      register: failover_stkynext_req
+      loop: "{{ range(1, 6) | list }}"
+      changed_when: false
+      failed_when: "sticky_server_s2_name not in failover_stkynext_req.content"
+      when: sticky_server_s2_name is defined
+
+    - name: "Sticky Failover - Assert all subsequent requests hit S2 ({{ sticky_server_s2_name | default('N/A') }})"
+      ansible.builtin.assert:
+        that:
+          - (failover_stkynext_req.results | map(attribute='content') | select('search', sticky_server_s2_name) | list | length) == (failover_stkynext_req.results | length)
+        fail_msg: "Failover error: {{ sticky_server_s2_name }}. Results: {{ failover_stkynext_req.results | map(attribute='content') | list }}"
+        success_msg: "All failover subsequent requests correctly hit {{ sticky_server_s2_name }}."
+      when: sticky_server_s2_name is defined and failover_stkynext_req.results is defined and (failover_stkynext_req.results | length > 0)
+
+- name: Test Load Balancer - Sticky Sessions (No Switch Back After S1 Recovery)
+  hosts: localhost
+  gather_facts: false
+  vars:
+    loadbalancer_ip: "{{ hostvars[groups['loadbalancer'][0]]['loadbalancer_ip'] }}"
+    s1_recovering_server: "{{ hostvars['localhost']['s1_to_kill'] | default(none) }}"
+    s2_current_sticky_server: "{{ hostvars['localhost']['sticky_server_s2_name'] | default(none) }}"
+  tasks:
+    - name: "No Switch Back - Skip if S1 or S2 not identified from previous play"
+      ansible.builtin.meta: end_play
+      when: (s1_recovering_server is none) or (s2_current_sticky_server is none)
+
+    - name: "No Switch Back - Restart Nginx on S1 ({{ s1_recovering_server | default('N/A') }})"
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: started
+      delegate_to: "{{ s1_recovering_server }}"
+      become: true
+      when: s1_recovering_server is defined
+
+    - name: "No Switch Back - Wait for S1 to potentially become available to LB"
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: "No Switch Back - Subsequent requests (expecting STILL S2: {{ s2_current_sticky_server | default('N/A') }})"
+      ansible.builtin.uri:
+        url: "http://{{ loadbalancer_ip }}:80/index.html"
+        method: GET
+        return_content: true
+        headers:
+          Cookie: "SRVID={{ s2_current_sticky_server }}"
+      register: no_switch
+      loop: "{{ range(1, 6) | list }}"
+      changed_when: false
+      failed_when: "s2_current_sticky_server not in no_switch.content"
+      when: s2_current_sticky_server is defined
+
+    - name: "No Switch Back - Assert all subsequent requests STILL hit S2 ({{ s2_current_sticky_server | default('N/A') }})"
+      ansible.builtin.assert:
+        that:
+          - (no_switch.results | map(attribute='content') | select('search', s2_current_sticky_server) | list | length) == (no_switch.results | length)
+        fail_msg: "No Switch Back error: {{ s2_current_sticky_server }}. Results: {{ no_switch.results | map(attribute='content') | list }}"
+        success_msg: "All 'no switch back' requests correctly hit {{ s2_current_sticky_server }}."
+      when: s2_current_sticky_server is defined and no_switch.results is defined and (no_switch.results | length > 0)
+
+- name: Cleanup - Ensure Webservers are Healthy
+  hosts: webservers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure Nginx service is running on all webservers
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: started
+        enabled: true
+      register: cleanup_nginx_status
+      failed_when: false
+      changed_when: "cleanup_nginx_status.changed"

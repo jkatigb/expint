@@ -1,0 +1,50 @@
+---
+- name: Verify Webserver Configuration
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Check if Nginx package is installed
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert Nginx package installation
+      ansible.builtin.assert:
+        that:
+          - "'nginx' in ansible_facts.packages"
+        fail_msg: "Nginx package is not installed."
+        success_msg: "Nginx package is installed."
+
+    - name: Check Nginx service status
+      ansible.builtin.service_facts:
+
+    - name: Assert Nginx service is running and enabled
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.services['nginx.service'].state == 'running'"
+          - "ansible_facts.services['nginx.service'].status == 'enabled'"
+        fail_msg: "State: {{ ansible_facts.services['nginx.service'].state }}, Status: {{ ansible_facts.services['nginx.service'].status }}"
+        success_msg: "Nginx service is running and enabled."
+
+    - name: Retrieve content from Nginx
+      ansible.builtin.uri:
+        url: http://localhost/index.html
+        method: GET
+        return_content: true
+      register: web_content
+      check_mode: false
+
+    - name: Assert Nginx is serving index.html successfully
+      ansible.builtin.assert:
+        that:
+          - "web_content.status == 200"
+        fail_msg: "Nginx did not return HTTP 200 for index.html. Status: {{ web_content.status }}"
+        success_msg: "Nginx returned HTTP 200 for index.html."
+
+    - name: Assert content contains the hostname
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.hostname in web_content.content"
+        fail_msg: "index.html does not contain the hostname '{{ ansible_facts.hostname }}'."
+        success_msg: "index.html contains the hostname '{{ ansible_facts.hostname }}'."

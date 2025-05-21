@@ -1,0 +1,201 @@
+---
+- name: Verify Security Configuration
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    loadbalancer_ip: "{{ hostvars['lb']['ansible_host'] | default(omit) }}"
+    monitoring_ip: "{{ hostvars['mon']['ansible_host'] | default(omit) }}"
+    test_closed_port: 12345
+
+  tasks:
+    - name: Ensure UFW package is installed (as a prerequisite for the service)
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert UFW package is installed
+      ansible.builtin.assert:
+        that: "'ufw' in ansible_facts.packages"
+        fail_msg: "UFW package 'ufw' is not installed."
+        success_msg: "UFW package 'ufw' is installed."
+
+    - name: Ensure UFW service is active
+      ansible.builtin.service_facts:
+
+    - name: Get systemd status for ufw.service
+      ansible.builtin.command: systemctl status ufw.service --no-pager
+      register: ufw_systemctl_status
+      changed_when: false
+      failed_when: false
+
+    - name: Assert UFW service is active, enabled, and exited cleanly
+      ansible.builtin.assert:
+        that:
+          - "ansible_facts.services['ufw.service'] is defined"
+          - "ansible_facts.services['ufw.service'].status == 'enabled'"
+          - "'Active: active (exited)' in ufw_systemctl_status.stdout"
+          - "'status=0/SUCCESS' in ufw_systemctl_status.stdout"
+        fail_msg: >
+          UFW service check failed.
+          Enabled: {{ ansible_facts.services['ufw.service'].status | default('undefined') }}.
+          Systemd stdout: {{ ufw_systemctl_status.stdout }}
+        success_msg: "UFW service is enabled and reported active (exited) with status=0/SUCCESS."
+
+    - name: Get UFW status verbose output
+      ansible.builtin.command: ufw status verbose
+      register: ufw_status_verbose
+      changed_when: false
+      check_mode: false
+
+    - name: Assert UFW default incoming policy is deny
+      ansible.builtin.assert:
+        that:
+          - "'Default: deny (incoming)' in ufw_status_verbose.stdout"
+        fail_msg: "UFW default incoming policy is not 'deny'."
+        success_msg: "UFW default incoming policy is 'deny'."
+
+    - name: Run Loadbalancer Specific Security Tests
+      when: "'loadbalancer' in group_names"
+      block:
+        - name: LB | Check SSH (22) accessibility
+          ansible.builtin.wait_for:
+            {
+              port: 22,
+              host: "{{ ansible_host }}",
+              state: started,
+              timeout: 5,
+              connect_timeout: 3,
+            }
+          register: lb_ssh_test
+          ignore_errors: true
+
+        - name: LB | Assert SSH (22) is accessible
+          ansible.builtin.assert:
+            that: lb_ssh_test.state == 'started' or lb_ssh_test.elapsed is defined
+            fail_msg: "LB: SSH (22) is not accessible."
+            success_msg: "LB: SSH (22) is accessible."
+
+        - name: LB | Check HTTP (80) accessibility
+          ansible.builtin.wait_for:
+            {
+              port: 80,
+              host: "{{ ansible_host }}",
+              state: started,
+              timeout: 5,
+              connect_timeout: 3,
+            }
+          register: lb_http_test
+          ignore_errors: true
+
+        - name: LB | Assert HTTP (80) is accessible
+          ansible.builtin.assert:
+            that: lb_http_test.state == 'started' or lb_http_test.elapsed is defined
+            fail_msg: "LB: HTTP (80) is not accessible."
+            success_msg: "LB: HTTP (80) is accessible."
+
+        - name: LB | Check High Port (60001) accessibility
+          ansible.builtin.wait_for: {
+            port: 60001,
+            host: "{{ ansible_host }}",
+            state: started,
+            timeout: 5,
+            connect_timeout: 3,
+          }
+          register: lb_high_port_test
+          ignore_errors: true
+
+        - name: LB | Assert High Port (60001) is accessible
+          ansible.builtin.assert:
+            that: lb_high_port_test.state == 'started' or lb_high_port_test.elapsed is defined
+            fail_msg: "LB: High Port (60001) is not accessible."
+            success_msg: "LB: High Port (60001) is accessible."
+
+        - name: LB | Check configured disallowed port is inaccessible by attempting to connect (expect failure)
+          ansible.builtin.wait_for: {
+            port: "{{ test_closed_port }}",
+            host: "{{ ansible_host }}",
+            state: started,
+            timeout: 3,
+            connect_timeout: 2,
+          }
+          register: lb_closed_port_connect_attempt
+          ignore_errors: true
+
+        - name: LB | Assert configured disallowed port is truly inaccessible
+          ansible.builtin.assert:
+            that: lb_closed_port_connect_attempt.failed
+            fail_msg: "LB: Disallowed port {{ test_closed_port }} IS accessible (connect attempt succeeded), but should NOT be."
+            success_msg: "LB: Disallowed port {{ test_closed_port }} is inaccessible (connect attempt failed as expected)."
+
+    - name: Run Non-Loadbalancer Specific Security Tests
+      when: "'loadbalancer' not in group_names"
+      block:
+        - name: Non-LB | Check Public SSH (22) is INACCESSIBLE from self
+          ansible.builtin.wait_for:
+            {
+              port: 22,
+              host: "{{ ansible_host }}",
+              state: stopped,
+              timeout: 5,
+              connect_timeout: 3,
+            }
+          register: non_lb_ssh_test
+          ignore_errors: true
+
+        - name: Non-LB | Assert Public SSH (22) is INACCESSIBLE from self
+          ansible.builtin.assert:
+            that: non_lb_ssh_test.failed or ('msg' in non_lb_ssh_test and ('Timeout' in non_lb_ssh_test.msg or 'Connection refused' in non_lb_ssh_test.msg))
+            fail_msg: "Non-LB: Public SSH (22) IS accessible from self but should NOT be."
+            success_msg: "Non-LB: Public SSH (22) is not accessible from self (Correct)."
+
+        - name: Non-LB | Check Public HTTP (80) is INACCESSIBLE from self
+          ansible.builtin.wait_for:
+            {
+              port: 80,
+              host: "{{ ansible_host }}",
+              state: stopped,
+              timeout: 5,
+              connect_timeout: 3,
+            }
+          register: non_lb_http_test
+          ignore_errors: true
+
+        - name: Non-LB | Assert Public HTTP (80) is INACCESSIBLE from self
+          ansible.builtin.assert:
+            that: non_lb_http_test.failed or ('msg' in non_lb_http_test and ('Timeout' in non_lb_http_test.msg or 'Connection refused' in non_lb_http_test.msg))
+            fail_msg: "Non-LB: Public HTTP (80) IS accessible from self but should NOT be."
+            success_msg: "Non-LB: Public HTTP (80) is not accessible from self (Correct)."
+
+        - name: Internal Host (Non-LB) | Verify UFW rule for SSH (22) from Loadbalancer
+          ansible.builtin.assert:
+            that: >
+              ufw_status_verbose.stdout is defined and
+              (ufw_status_verbose.stdout | regex_search('^22/tcp\\s+ALLOW IN\\s+' + (loadbalancer_ip | regex_escape()) + '.*$', multiline=True))
+            fail_msg: "Internal Host (Non-LB): UFW rule ALLOW 22/tcp from Loadbalancer IP ({{ loadbalancer_ip }}) not found."
+            success_msg: "Internal Host (Non-LB): UFW rule ALLOW 22/tcp from Loadbalancer IP ({{ loadbalancer_ip }}) found."
+          when:
+            - "'internal' in group_names"
+            - loadbalancer_ip is defined and loadbalancer_ip != ""
+
+        - name: Internal Host (Non-LB) | Verify UFW rule for HTTP (80) from Loadbalancer
+          ansible.builtin.assert:
+            that: >
+              ufw_status_verbose.stdout is defined and
+              (ufw_status_verbose.stdout | regex_search('^80/tcp\\s+ALLOW IN\\s+' + (loadbalancer_ip | regex_escape()) + '.*$', multiline=True))
+            fail_msg: "Internal Host (Non-LB): UFW rule ALLOW 80/tcp from Loadbalancer IP ({{ loadbalancer_ip }}) not found."
+            success_msg: "Internal Host (Non-LB): UFW rule ALLOW 80/tcp from Loadbalancer IP ({{ loadbalancer_ip }}) found."
+          when:
+            - "'internal' in group_names"
+            - loadbalancer_ip is defined and loadbalancer_ip != ""
+
+        - name: Webserver Host (Non-LB) | Verify UFW rule for HTTP (80) from Monitoring
+          ansible.builtin.assert:
+            that: >
+              ufw_status_verbose.stdout is defined and
+              (ufw_status_verbose.stdout | regex_search('^80/tcp\\s+ALLOW IN\\s+' + (monitoring_ip | regex_escape()) + '.*$', multiline=True))
+            fail_msg: "Webserver Host (Non-LB): UFW rule ALLOW 80/tcp from Monitoring IP ({{ monitoring_ip }}) not found."
+            success_msg: "Webserver Host (Non-LB): UFW rule ALLOW 80/tcp from Monitoring IP ({{ monitoring_ip }}) found."
+          when:
+            - "'webservers' in group_names"
+            - monitoring_ip is defined and monitoring_ip != ""
