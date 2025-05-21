@@ -16,11 +16,13 @@
   become: true
   roles:
     - loadbalancer
+
 - name: Build monitoring server
   hosts: monitoring
   become: true
   roles:
     - monitoring
+
 - name: Secure environment
   hosts: all
   become: true
