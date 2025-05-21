@@ -1,1 +1,1 @@
-ansible_ssh_common_args: "-o ProxyJump={{ admin_user }}@{{ hostvars['lb'].ansible_host }}"
+ansible_ssh_common_args: "-o ProxyJump={{ admin_user }}@{{ hostvars['lb'].ansible_host }} -o StrictHostKeyChecking=no"
