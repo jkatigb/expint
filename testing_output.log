@@ -1,0 +1,1448 @@
+INFO: --- Starting Testing Phase ---
+INFO: Running test playbooks from 'ansible/tests/'...
+INFO: Changed to directory for running test playbooks.
+INFO: Running test playbook: tests/test_common.yml with inventory inventory.ini...
+
+PLAY [Verify Environment Configuration] ****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [lb]
+ok: [web1]
+ok: [mon]
+ok: [web2]
+
+TASK [USER | Check user existence] *********************************************
+ok: [lb]
+ok: [web1]
+ok: [web2]
+ok: [mon]
+
+TASK [USER | Assert user existence (from id command)] **************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "User 'expensify' exists (verified with 'id' command)."
+}
+ok: [web1] => {
+    "changed": false,
+    "msg": "User 'expensify' exists (verified with 'id' command)."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "User 'expensify' exists (verified with 'id' command)."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "User 'expensify' exists (verified with 'id' command)."
+}
+
+TASK [USER | Check user sudo privileges] ***************************************
+ok: [lb]
+ok: [mon]
+ok: [web2]
+ok: [web1]
+
+TASK [USER | Verify can execute sudo non-interactively] ************************
+ok: [web1]
+ok: [lb]
+ok: [web2]
+ok: [mon]
+
+TASK [USER | Assert passwordless sudo execution] *******************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+ok: [web1] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+
+TASK [USER | Check user SSH authorized_keys] ***********************************
+ok: [web2]
+ok: [web1]
+ok: [lb]
+ok: [mon]
+
+TASK [USER | Assert user SSH key presence] *************************************
+ok: [web1] => {
+    "changed": false,
+    "msg": "SSH key for 'expensify' found."
+}
+ok: [lb] => {
+    "changed": false,
+    "msg": "SSH key for 'expensify' found."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "SSH key for 'expensify' found."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "SSH key for 'expensify' found."
+}
+
+TASK [USER | Check .ssh directory and authorized_keys permissions] *************
+ok: [mon] => (item=/home/expensify/.ssh)
+ok: [web1] => (item=/home/expensify/.ssh)
+ok: [lb] => (item=/home/expensify/.ssh)
+ok: [web2] => (item=/home/expensify/.ssh)
+ok: [mon] => (item=/home/expensify/.ssh/authorized_keys)
+ok: [web2] => (item=/home/expensify/.ssh/authorized_keys)
+ok: [web1] => (item=/home/expensify/.ssh/authorized_keys)
+ok: [lb] => (item=/home/expensify/.ssh/authorized_keys)
+
+TASK [USER | Assert .ssh directory permissions (700)] **************************
+ok: [lb] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh', 'mode': '0700', 'isdir': True, 'ischr': False, 'isblk': False, 'isreg': False, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 4096, 'inode': 258167, 'dev': 64513, 'nlink': 2, 'atime': 1747835274.8676739, 'mtime': 1747835274.8676739, 'ctime': 1747835274.8676739, 'wusr': True, 'rusr': True, 'xusr': True, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': True, 'pw_name': 'expensify', 'gr_name': 'expensify', 'mimetype': 'inode/directory', 'charset': 'binary', 'version': '3224544784', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh"
+            }
+        },
+        "item": "/home/expensify/.ssh",
+        "stat": {
+            "atime": 1747835274.8676739,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "binary",
+            "ctime": 1747835274.8676739,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": true,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 258167,
+            "isblk": false,
+            "ischr": false,
+            "isdir": true,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": false,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "inode/directory",
+            "mode": "0700",
+            "mtime": 1747835274.8676739,
+            "nlink": 2,
+            "path": "/home/expensify/.ssh",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 4096,
+            "uid": 1001,
+            "version": "3224544784",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": true
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [web2] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh', 'mode': '0700', 'isdir': True, 'ischr': False, 'isblk': False, 'isreg': False, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 4096, 'inode': 258122, 'dev': 64513, 'nlink': 2, 'atime': 1747835275.434281, 'mtime': 1747835275.434281, 'ctime': 1747835275.434281, 'wusr': True, 'rusr': True, 'xusr': True, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': True, 'pw_name': 'expensify', 'gr_name': 'expensify', 'mimetype': 'inode/directory', 'charset': 'binary', 'version': '3920018474', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh"
+            }
+        },
+        "item": "/home/expensify/.ssh",
+        "stat": {
+            "atime": 1747835275.434281,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "binary",
+            "ctime": 1747835275.434281,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": true,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 258122,
+            "isblk": false,
+            "ischr": false,
+            "isdir": true,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": false,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "inode/directory",
+            "mode": "0700",
+            "mtime": 1747835275.434281,
+            "nlink": 2,
+            "path": "/home/expensify/.ssh",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 4096,
+            "uid": 1001,
+            "version": "3920018474",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": true
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [mon] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh', 'mode': '0700', 'isdir': True, 'ischr': False, 'isblk': False, 'isreg': False, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 4096, 'inode': 258102, 'dev': 64513, 'nlink': 2, 'atime': 1747835275.9251285, 'mtime': 1747835275.9251285, 'ctime': 1747835275.9251285, 'wusr': True, 'rusr': True, 'xusr': True, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': True, 'pw_name': 'expensify', 'gr_name': 'expensify', 'mimetype': 'inode/directory', 'charset': 'binary', 'version': '1221506067', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh"
+            }
+        },
+        "item": "/home/expensify/.ssh",
+        "stat": {
+            "atime": 1747835275.9251285,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "binary",
+            "ctime": 1747835275.9251285,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": true,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 258102,
+            "isblk": false,
+            "ischr": false,
+            "isdir": true,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": false,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "inode/directory",
+            "mode": "0700",
+            "mtime": 1747835275.9251285,
+            "nlink": 2,
+            "path": "/home/expensify/.ssh",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 4096,
+            "uid": 1001,
+            "version": "1221506067",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": true
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [web1] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh', 'mode': '0700', 'isdir': True, 'ischr': False, 'isblk': False, 'isreg': False, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 4096, 'inode': 258124, 'dev': 64513, 'nlink': 2, 'atime': 1747835275.6599288, 'mtime': 1747835275.6599288, 'ctime': 1747835275.6599288, 'wusr': True, 'rusr': True, 'xusr': True, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': True, 'pw_name': 'expensify', 'gr_name': 'expensify', 'mimetype': 'inode/directory', 'charset': 'binary', 'version': '67238814', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh"
+            }
+        },
+        "item": "/home/expensify/.ssh",
+        "stat": {
+            "atime": 1747835275.6599288,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "binary",
+            "ctime": 1747835275.6599288,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": true,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 258124,
+            "isblk": false,
+            "ischr": false,
+            "isdir": true,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": false,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "inode/directory",
+            "mode": "0700",
+            "mtime": 1747835275.6599288,
+            "nlink": 2,
+            "path": "/home/expensify/.ssh",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 4096,
+            "uid": 1001,
+            "version": "67238814",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": true
+        }
+    },
+    "msg": "All assertions passed"
+}
+
+TASK [USER | Assert authorized_keys permissions (600)] *************************
+ok: [lb] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh/authorized_keys', 'mode': '0600', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 82, 'inode': 72492, 'dev': 64513, 'nlink': 1, 'atime': 1747835836.1213765, 'mtime': 1747835274.8717053, 'ctime': 1747835274.8676739, 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': False, 'pw_name': 'expensify', 'gr_name': 'expensify', 'checksum': 'fdd3863de3f5092f6025f847606ec9da40731e6d', 'mimetype': 'text/plain', 'charset': 'us-ascii', 'version': '447129273', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh/authorized_keys', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh/authorized_keys', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh/authorized_keys"
+            }
+        },
+        "item": "/home/expensify/.ssh/authorized_keys",
+        "stat": {
+            "atime": 1747835836.1213765,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "us-ascii",
+            "checksum": "fdd3863de3f5092f6025f847606ec9da40731e6d",
+            "ctime": 1747835274.8676739,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": false,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 72492,
+            "isblk": false,
+            "ischr": false,
+            "isdir": false,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": true,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "text/plain",
+            "mode": "0600",
+            "mtime": 1747835274.8717053,
+            "nlink": 1,
+            "path": "/home/expensify/.ssh/authorized_keys",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 82,
+            "uid": 1001,
+            "version": "447129273",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": false
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [web1] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh/authorized_keys', 'mode': '0600', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 82, 'inode': 72517, 'dev': 64513, 'nlink': 1, 'atime': 1747835834.9460297, 'mtime': 1747835275.663988, 'ctime': 1747835275.6599288, 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': False, 'pw_name': 'expensify', 'gr_name': 'expensify', 'checksum': 'fdd3863de3f5092f6025f847606ec9da40731e6d', 'mimetype': 'text/plain', 'charset': 'us-ascii', 'version': '1167813171', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh/authorized_keys', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh/authorized_keys', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh/authorized_keys"
+            }
+        },
+        "item": "/home/expensify/.ssh/authorized_keys",
+        "stat": {
+            "atime": 1747835834.9460297,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "us-ascii",
+            "checksum": "fdd3863de3f5092f6025f847606ec9da40731e6d",
+            "ctime": 1747835275.6599288,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": false,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 72517,
+            "isblk": false,
+            "ischr": false,
+            "isdir": false,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": true,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "text/plain",
+            "mode": "0600",
+            "mtime": 1747835275.663988,
+            "nlink": 1,
+            "path": "/home/expensify/.ssh/authorized_keys",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 82,
+            "uid": 1001,
+            "version": "1167813171",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": false
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [web2] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh/authorized_keys', 'mode': '0600', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 82, 'inode': 69320, 'dev': 64513, 'nlink': 1, 'atime': 1747835834.780271, 'mtime': 1747835275.4357188, 'ctime': 1747835275.434281, 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': False, 'pw_name': 'expensify', 'gr_name': 'expensify', 'checksum': 'fdd3863de3f5092f6025f847606ec9da40731e6d', 'mimetype': 'text/plain', 'charset': 'us-ascii', 'version': '1011749508', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh/authorized_keys', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh/authorized_keys', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh/authorized_keys"
+            }
+        },
+        "item": "/home/expensify/.ssh/authorized_keys",
+        "stat": {
+            "atime": 1747835834.780271,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "us-ascii",
+            "checksum": "fdd3863de3f5092f6025f847606ec9da40731e6d",
+            "ctime": 1747835275.434281,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": false,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 69320,
+            "isblk": false,
+            "ischr": false,
+            "isdir": false,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": true,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "text/plain",
+            "mode": "0600",
+            "mtime": 1747835275.4357188,
+            "nlink": 1,
+            "path": "/home/expensify/.ssh/authorized_keys",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 82,
+            "uid": 1001,
+            "version": "1011749508",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": false
+        }
+    },
+    "msg": "All assertions passed"
+}
+ok: [mon] => (item={'changed': False, 'stat': {'exists': True, 'path': '/home/expensify/.ssh/authorized_keys', 'mode': '0600', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 1001, 'gid': 1001, 'size': 82, 'inode': 69320, 'dev': 64513, 'nlink': 1, 'atime': 1747835836.085933, 'mtime': 1747835275.9293447, 'ctime': 1747835275.9251285, 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': False, 'xgrp': False, 'woth': False, 'roth': False, 'xoth': False, 'isuid': False, 'isgid': False, 'blocks': 8, 'block_size': 4096, 'device_type': 0, 'readable': True, 'writeable': True, 'executable': False, 'pw_name': 'expensify', 'gr_name': 'expensify', 'checksum': 'fdd3863de3f5092f6025f847606ec9da40731e6d', 'mimetype': 'text/plain', 'charset': 'us-ascii', 'version': '1028083386', 'attributes': ['extents'], 'attr_flags': 'e'}, 'invocation': {'module_args': {'path': '/home/expensify/.ssh/authorized_keys', 'follow': False, 'get_checksum': True, 'get_mime': True, 'get_attributes': True, 'checksum_algorithm': 'sha1'}}, 'failed': False, 'item': '/home/expensify/.ssh/authorized_keys', 'ansible_loop_var': 'item'}) => {
+    "ansible_loop_var": "item",
+    "changed": false,
+    "item": {
+        "ansible_loop_var": "item",
+        "changed": false,
+        "failed": false,
+        "invocation": {
+            "module_args": {
+                "checksum_algorithm": "sha1",
+                "follow": false,
+                "get_attributes": true,
+                "get_checksum": true,
+                "get_mime": true,
+                "path": "/home/expensify/.ssh/authorized_keys"
+            }
+        },
+        "item": "/home/expensify/.ssh/authorized_keys",
+        "stat": {
+            "atime": 1747835836.085933,
+            "attr_flags": "e",
+            "attributes": [
+                "extents"
+            ],
+            "block_size": 4096,
+            "blocks": 8,
+            "charset": "us-ascii",
+            "checksum": "fdd3863de3f5092f6025f847606ec9da40731e6d",
+            "ctime": 1747835275.9251285,
+            "dev": 64513,
+            "device_type": 0,
+            "executable": false,
+            "exists": true,
+            "gid": 1001,
+            "gr_name": "expensify",
+            "inode": 69320,
+            "isblk": false,
+            "ischr": false,
+            "isdir": false,
+            "isfifo": false,
+            "isgid": false,
+            "islnk": false,
+            "isreg": true,
+            "issock": false,
+            "isuid": false,
+            "mimetype": "text/plain",
+            "mode": "0600",
+            "mtime": 1747835275.9293447,
+            "nlink": 1,
+            "path": "/home/expensify/.ssh/authorized_keys",
+            "pw_name": "expensify",
+            "readable": true,
+            "rgrp": false,
+            "roth": false,
+            "rusr": true,
+            "size": 82,
+            "uid": 1001,
+            "version": "1028083386",
+            "wgrp": false,
+            "woth": false,
+            "writeable": true,
+            "wusr": true,
+            "xgrp": false,
+            "xoth": false,
+            "xusr": false
+        }
+    },
+    "msg": "All assertions passed"
+}
+
+PLAY RECAP *********************************************************************
+lb                         : ok=11   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+mon                        : ok=11   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+web1                       : ok=11   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+web2                       : ok=11   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+INFO: Running test playbook: tests/test_webservers.yml with inventory inventory.ini...
+
+PLAY [Verify Webserver Configuration] ******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [web1]
+ok: [web2]
+
+TASK [Check if Nginx package is installed] *************************************
+ok: [web1]
+ok: [web2]
+
+TASK [Assert Nginx package installation] ***************************************
+ok: [web1] => {
+    "changed": false,
+    "msg": "Nginx package is installed."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Nginx package is installed."
+}
+
+TASK [Check Nginx service status] **********************************************
+ok: [web1]
+ok: [web2]
+
+TASK [Assert Nginx service is running and enabled] *****************************
+ok: [web1] => {
+    "changed": false,
+    "msg": "Nginx service is running and enabled."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Nginx service is running and enabled."
+}
+
+TASK [Retrieve content from Nginx] *********************************************
+ok: [web2]
+ok: [web1]
+
+TASK [Assert Nginx is serving index.html successfully] *************************
+ok: [web1] => {
+    "changed": false,
+    "msg": "Nginx returned HTTP 200 for index.html."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Nginx returned HTTP 200 for index.html."
+}
+
+TASK [Assert content contains the hostname] ************************************
+ok: [web1] => {
+    "changed": false,
+    "msg": "index.html contains the hostname 'web1'."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "index.html contains the hostname 'web2'."
+}
+
+PLAY RECAP *********************************************************************
+web1                       : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+web2                       : ok=8    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+INFO: Running test playbook: tests/test_loadbalancer.yml with inventory inventory.ini...
+
+PLAY [Gather Facts and Set Controller Public IP for Localhost] *****************
+
+TASK [Get controller's public IPv4 address using curl -4] **********************
+ok: [localhost]
+
+TASK [Set true_controller_ip fact with public IPv4 address] ********************
+ok: [localhost]
+
+TASK [Fail if controller public IPv4 could not be determined] ******************
+skipping: [localhost]
+
+TASK [Debug true_controller_ip (Public IPv4)] **********************************
+ok: [localhost] => {
+    "true_controller_ip": "45.139.212.239"
+}
+
+PLAY [Gather Facts about Load Balancer and Controller] *************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [lb]
+
+TASK [Get Load Balancer IP] ****************************************************
+ok: [lb]
+
+PLAY [Ensure Webservers are Initially Healthy] *********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [web2]
+ok: [web1]
+
+TASK [Ensure Nginx service is running on webservers] ***************************
+ok: [web2]
+ok: [web1]
+
+TASK [Verify Nginx serving content locally on webservers] **********************
+ok: [web1]
+ok: [web2]
+
+PLAY [Test Load Balancer - Port Forwarding, Basic Distribution, Original IP] ***
+
+TASK [Debug LB IP and Controller IP] *******************************************
+ok: [localhost] => {
+    "msg": "Testing LB at 138.197.119.236 from controller 45.139.212.239. Webservers: ['web1', 'web2']"
+}
+
+TASK [Test Port Forwarding for port {{ item }}] ********************************
+ok: [localhost] => (item=60000)
+ok: [localhost] => (item=62500)
+ok: [localhost] => (item=65000)
+
+TASK [Execute requests to get SRVID cookies] ***********************************
+ok: [localhost] => (item=1)
+ok: [localhost] => (item=2)
+
+TASK [Debug Load Distribution Response] ****************************************
+ok: [localhost] => {
+    "lb_distribution_response": {
+        "changed": false,
+        "msg": "All items completed",
+        "results": [
+            {
+                "accept_ranges": "bytes",
+                "ansible_loop_var": "item",
+                "cache_control": "private",
+                "changed": false,
+                "connection": "close",
+                "content": "<!DOCTYPE html>\n<html>\n<head><title>web1</title></head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>This is web1.</p>\n</body>\n</html>",
+                "content_length": "126",
+                "content_type": "text/html",
+                "cookies": {
+                    "SRVID": "web1"
+                },
+                "cookies_string": "SRVID=web1",
+                "date": "Wed, 21 May 2025 13:58:41 GMT",
+                "elapsed": 0,
+                "etag": "\"682dd9d8-7e\"",
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "attributes": null,
+                        "body": null,
+                        "body_format": "raw",
+                        "ca_path": null,
+                        "ciphers": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "creates": null,
+                        "decompress": true,
+                        "dest": null,
+                        "follow_redirects": "safe",
+                        "force": false,
+                        "force_basic_auth": false,
+                        "group": null,
+                        "headers": {},
+                        "http_agent": "ansible-httpget",
+                        "method": "GET",
+                        "mode": null,
+                        "owner": null,
+                        "remote_src": false,
+                        "removes": null,
+                        "return_content": true,
+                        "selevel": null,
+                        "serole": null,
+                        "setype": null,
+                        "seuser": null,
+                        "src": null,
+                        "status_code": [
+                            200
+                        ],
+                        "timeout": 30,
+                        "unix_socket": null,
+                        "unredirected_headers": [],
+                        "unsafe_writes": false,
+                        "url": "http://138.197.119.236:80/index.html",
+                        "url_password": null,
+                        "url_username": null,
+                        "use_gssapi": false,
+                        "use_netrc": true,
+                        "use_proxy": true,
+                        "validate_certs": true
+                    }
+                },
+                "item": 1,
+                "last_modified": "Wed, 21 May 2025 13:49:12 GMT",
+                "msg": "OK (126 bytes)",
+                "redirected": false,
+                "server": "nginx/1.18.0 (Ubuntu)",
+                "set_cookie": "SRVID=web1; path=/",
+                "status": 200,
+                "url": "http://138.197.119.236:80/index.html"
+            },
+            {
+                "accept_ranges": "bytes",
+                "ansible_loop_var": "item",
+                "cache_control": "private",
+                "changed": false,
+                "connection": "close",
+                "content": "<!DOCTYPE html>\n<html>\n<head><title>web2</title></head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>This is web2.</p>\n</body>\n</html>",
+                "content_length": "126",
+                "content_type": "text/html",
+                "cookies": {
+                    "SRVID": "web2"
+                },
+                "cookies_string": "SRVID=web2",
+                "date": "Wed, 21 May 2025 13:58:42 GMT",
+                "elapsed": 0,
+                "etag": "\"682dd9da-7e\"",
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "attributes": null,
+                        "body": null,
+                        "body_format": "raw",
+                        "ca_path": null,
+                        "ciphers": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "creates": null,
+                        "decompress": true,
+                        "dest": null,
+                        "follow_redirects": "safe",
+                        "force": false,
+                        "force_basic_auth": false,
+                        "group": null,
+                        "headers": {},
+                        "http_agent": "ansible-httpget",
+                        "method": "GET",
+                        "mode": null,
+                        "owner": null,
+                        "remote_src": false,
+                        "removes": null,
+                        "return_content": true,
+                        "selevel": null,
+                        "serole": null,
+                        "setype": null,
+                        "seuser": null,
+                        "src": null,
+                        "status_code": [
+                            200
+                        ],
+                        "timeout": 30,
+                        "unix_socket": null,
+                        "unredirected_headers": [],
+                        "unsafe_writes": false,
+                        "url": "http://138.197.119.236:80/index.html",
+                        "url_password": null,
+                        "url_username": null,
+                        "use_gssapi": false,
+                        "use_netrc": true,
+                        "use_proxy": true,
+                        "validate_certs": true
+                    }
+                },
+                "item": 2,
+                "last_modified": "Wed, 21 May 2025 13:49:14 GMT",
+                "msg": "OK (126 bytes)",
+                "redirected": false,
+                "server": "nginx/1.18.0 (Ubuntu)",
+                "set_cookie": "SRVID=web2; path=/",
+                "status": 200,
+                "url": "http://138.197.119.236:80/index.html"
+            }
+        ],
+        "skipped": false
+    }
+}
+
+TASK [Extract SRVIDs from initial request batch] *******************************
+ok: [localhost]
+
+TASK [Set expected unique SRVID count] *****************************************
+ok: [localhost]
+
+TASK [Assert SRVIDs are set and appropriately distributed] *********************
+ok: [localhost] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+
+TASK [Test Original Client IP (X-Forwarded-For) - Make request and identify backend via SRVID cookie] ***
+ok: [localhost]
+
+TASK [Set xff_backend_server_name from SRVID cookie] ***************************
+ok: [localhost]
+
+TASK [Test Original Client IP - Get backend server IP] *************************
+ok: [localhost]
+
+TASK [Debug controller_ip before grep] *****************************************
+ok: [localhost] => {
+    "controller_ip": "45.139.212.239"
+}
+
+TASK [Test Original Client IP - Check Nginx access log on web1] ****************
+ok: [localhost -> web1(45.55.90.213)]
+
+TASK [Debug output of grep command for XFF check] ******************************
+ok: [localhost] => {
+    "nginx_log_check": {
+        "changed": false,
+        "cmd": "grep '45.139.212.239' /var/log/nginx/access.log | tail -n 5",
+        "delta": "0:00:00.007896",
+        "end": "2025-05-21 13:58:48.091166",
+        "failed": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2025-05-21 13:58:48.083270",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "45.139.212.239 - - [21/May/2025:13:58:41 +0000] \"GET /index.html HTTP/1.1\" 200 126 \"-\" \"ansible-httpget\" \"45.139.212.239\"\n45.139.212.239 - - [21/May/2025:13:58:43 +0000] \"GET /index.html HTTP/1.1\" 200 126 \"-\" \"ansible-httpget\" \"45.139.212.239\"",
+        "stdout_lines": [
+            "45.139.212.239 - - [21/May/2025:13:58:41 +0000] \"GET /index.html HTTP/1.1\" 200 126 \"-\" \"ansible-httpget\" \"45.139.212.239\"",
+            "45.139.212.239 - - [21/May/2025:13:58:43 +0000] \"GET /index.html HTTP/1.1\" 200 126 \"-\" \"ansible-httpget\" \"45.139.212.239\""
+        ]
+    }
+}
+
+TASK [Assert controller IP (X-Forwarded-For) was found in backend logs] ********
+ok: [localhost] => {
+    "changed": false,
+    "msg": "XFF OK: Controller IP 45.139.212.239 found in Nginx logs on web1."
+}
+
+PLAY [Test Load Balancer - Sticky Sessions (Normal Operation)] *****************
+
+TASK [Sticky Sessions (Normal) - Initial request to get backend server via SRVID cookie] ***
+ok: [localhost]
+
+TASK [Set sticky_server_s1_name from SRVID cookie] *****************************
+ok: [localhost]
+
+TASK [Sticky Sessions (Normal) - Subsequent requests (expecting server web2)] ***
+ok: [localhost] => (item=1)
+ok: [localhost] => (item=2)
+ok: [localhost] => (item=3)
+ok: [localhost] => (item=4)
+ok: [localhost] => (item=5)
+
+TASK [Sticky Sessions (Normal) - Assert all subsequent requests hit web2] ******
+ok: [localhost] => {
+    "changed": false,
+    "msg": "All subsequent requests correctly hit web2."
+}
+
+PLAY [Test Load Balancer - Sticky Sessions (Failover)] *************************
+
+TASK [Sticky Failover - Identify S1 (to kill) and potential S2] ****************
+ok: [localhost]
+
+TASK [Sticky Failover - Skip if only one webserver or S1 not identified] *******
+skipping: [localhost]
+
+TASK [Sticky Failover - Kill Nginx on S1 (web2)] *******************************
+changed: [localhost -> web2(159.203.165.157)]
+
+TASK [Sticky Failover - Wait for LB to detect S1 failure] **********************
+Pausing for 10 seconds
+(ctrl+C then 'C' = continue early, ctrl+C then 'A' = abort)
+ok: [localhost]
+
+TASK [Sticky Failover - Request after S1 down (expecting S2: web1)] ************
+ok: [localhost]
+
+TASK [Sticky Failover - Set S2 as the new sticky server] ***********************
+ok: [localhost]
+
+TASK [Sticky Failover - Subsequent requests (expecting S2: web1)] **************
+ok: [localhost] => (item=1)
+ok: [localhost] => (item=2)
+ok: [localhost] => (item=3)
+ok: [localhost] => (item=4)
+ok: [localhost] => (item=5)
+
+TASK [Sticky Failover - Assert all subsequent requests hit S2 (web1)] **********
+ok: [localhost] => {
+    "changed": false,
+    "msg": "All failover subsequent requests correctly hit web1."
+}
+
+PLAY [Test Load Balancer - Sticky Sessions (No Switch Back After S1 Recovery)] ***
+
+TASK [No Switch Back - Skip if S1 or S2 not identified from previous play] *****
+skipping: [localhost]
+
+TASK [No Switch Back - Restart Nginx on S1 (web2)] *****************************
+changed: [localhost -> web2(159.203.165.157)]
+
+TASK [No Switch Back - Wait for S1 to potentially become available to LB] ******
+Pausing for 10 seconds
+(ctrl+C then 'C' = continue early, ctrl+C then 'A' = abort)
+ok: [localhost]
+
+TASK [No Switch Back - Subsequent requests (expecting STILL S2: web1)] *********
+ok: [localhost] => (item=1)
+ok: [localhost] => (item=2)
+ok: [localhost] => (item=3)
+ok: [localhost] => (item=4)
+ok: [localhost] => (item=5)
+
+TASK [No Switch Back - Assert all subsequent requests STILL hit S2 (web1)] *****
+ok: [localhost] => {
+    "changed": false,
+    "msg": "All 'no switch back' requests correctly hit web1."
+}
+
+PLAY [Cleanup - Ensure Webservers are Healthy] *********************************
+
+TASK [Ensure Nginx service is running on all webservers] ***********************
+ok: [web1]
+ok: [web2]
+
+PLAY RECAP *********************************************************************
+lb                         : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+localhost                  : ok=32   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+web1                       : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+web2                       : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+INFO: Running test playbook: tests/test_monitoring.yml with inventory inventory.ini...
+
+PLAY [Verify Nagios Configuration and Custom Check] ****************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [mon]
+
+TASK [Check if Nagios package is installed] ************************************
+ok: [mon]
+
+TASK [Assert Nagios package installation] **************************************
+ok: [mon] => {
+    "changed": false,
+    "msg": "nagios4 package is installed."
+}
+
+TASK [Check Nagios service status] *********************************************
+ok: [mon]
+
+TASK [Assert Nagios service is running and enabled] ****************************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Nagios service (nagios4.service) is running and enabled."
+}
+
+TASK [Check if Nagios webservers configuration file exists] ********************
+ok: [mon]
+
+TASK [Assert Nagios webservers configuration file exists] **********************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Nagios webservers configuration file (/etc/nagios4/conf.d/web_cluster.cfg) exists."
+}
+
+TASK [Check if Nagios load balancer configuration file exists] *****************
+ok: [mon]
+
+TASK [Assert Nagios load balancer configuration file exists] *******************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Nagios load balancer configuration file (/etc/nagios4/conf.d/web_cluster.cfg) exists."
+}
+
+TASK [Check if custom Nagios Python check script exists and is executable] *****
+ok: [mon]
+
+TASK [Assert custom Nagios Python check script exists] *************************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Custom Nagios Python check script (/usr/local/nagios/libexec/check_web_cluster.py) exists."
+}
+
+TASK [Assert custom Nagios Python check script is executable] ******************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Custom Nagios Python check script (/usr/local/nagios/libexec/check_web_cluster.py) is executable."
+}
+
+TASK [Check if webserver list file for custom check exists] ********************
+ok: [mon]
+
+TASK [Assert webserver list file for custom check exists] **********************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Webserver list file (/etc/nagios4/web_cluster.json) for custom check exists."
+}
+
+TASK [Define webserver hostnames for tests from 'webservers' group] ************
+ok: [mon]
+
+TASK [Ensure Nginx is running on all webservers before tests] ******************
+ok: [mon -> web1(45.55.90.213)] => (item=web1)
+ok: [mon -> web2(159.203.165.157)] => (item=web2)
+
+TASK [(SETUP) Stop Nginx on one webserver (web1)] ******************************
+changed: [mon -> web1(45.55.90.213)]
+
+TASK [Delay for 5 seconds to ensure service is stopped and check can detect it] ***
+Pausing for 5 seconds
+(ctrl+C then 'C' = continue early, ctrl+C then 'A' = abort)
+ok: [mon]
+
+TASK [(TEST) Execute Nagios check script (expect WARNING)] *********************
+ok: [mon]
+
+TASK [(ASSERT) Verify Nagios script WARNING output and exit code] **************
+ok: [mon] => {
+    "changed": false,
+    "msg": "Script correctly returned WARNING when one webserver is offline."
+}
+
+TASK [(CLEANUP) Ensure Nginx is running on web1] *******************************
+changed: [mon -> web1(45.55.90.213)]
+
+TASK [(SETUP) Stop Nginx on all webservers in 'webservers' group] **************
+changed: [mon -> web1(45.55.90.213)] => (item=web1)
+changed: [mon -> web2(159.203.165.157)] => (item=web2)
+
+TASK [Delay for 5 seconds to ensure services are stopped and check can detect it] ***
+Pausing for 5 seconds
+(ctrl+C then 'C' = continue early, ctrl+C then 'A' = abort)
+ok: [mon]
+
+TASK [(TEST) Execute Nagios check script (expect CRITICAL/FAILURE)] ************
+ok: [mon]
+
+TASK [(ASSERT) Verify Nagios script CRITICAL/FAILURE output and exit code] *****
+ok: [mon] => {
+    "changed": false,
+    "msg": "Script correctly returned CRITICAL/FAILURE when all webservers are offline."
+}
+
+TASK [(CLEANUP) Ensure Nginx is running on all webservers] *********************
+changed: [mon -> web1(45.55.90.213)] => (item=web1)
+changed: [mon -> web2(159.203.165.157)] => (item=web2)
+
+PLAY RECAP *********************************************************************
+mon                        : ok=26   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+INFO: Running test playbook: tests/test_security.yml with inventory inventory.ini...
+
+PLAY [Verify Security Configuration] *******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [web2]
+ok: [mon]
+ok: [lb]
+ok: [web1]
+
+TASK [Ensure UFW package is installed (as a prerequisite for the service)] *****
+ok: [web2]
+ok: [lb]
+ok: [web1]
+ok: [mon]
+
+TASK [Assert UFW package is installed] *****************************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "UFW package 'ufw' is installed."
+}
+ok: [web1] => {
+    "changed": false,
+    "msg": "UFW package 'ufw' is installed."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "UFW package 'ufw' is installed."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "UFW package 'ufw' is installed."
+}
+
+TASK [Ensure UFW service is active] ********************************************
+ok: [web1]
+ok: [lb]
+ok: [web2]
+ok: [mon]
+
+TASK [Get systemd status for ufw.service] **************************************
+ok: [lb]
+ok: [mon]
+ok: [web1]
+ok: [web2]
+
+TASK [Assert UFW service is active, enabled, and exited cleanly] ***************
+ok: [lb] => {
+    "changed": false,
+    "msg": "UFW service is enabled and reported active (exited) with status=0/SUCCESS."
+}
+ok: [web1] => {
+    "changed": false,
+    "msg": "UFW service is enabled and reported active (exited) with status=0/SUCCESS."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "UFW service is enabled and reported active (exited) with status=0/SUCCESS."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "UFW service is enabled and reported active (exited) with status=0/SUCCESS."
+}
+
+TASK [Get UFW status verbose output] *******************************************
+ok: [lb]
+ok: [web2]
+ok: [web1]
+ok: [mon]
+
+TASK [Assert UFW default incoming policy is deny] ******************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "UFW default incoming policy is 'deny'."
+}
+ok: [web1] => {
+    "changed": false,
+    "msg": "UFW default incoming policy is 'deny'."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "UFW default incoming policy is 'deny'."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "UFW default incoming policy is 'deny'."
+}
+
+TASK [LB | Check SSH (22) accessibility] ***************************************
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+ok: [lb]
+
+TASK [LB | Assert SSH (22) is accessible] **************************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "LB: SSH (22) is accessible."
+}
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+
+TASK [LB | Check HTTP (80) accessibility] **************************************
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+ok: [lb]
+
+TASK [LB | Assert HTTP (80) is accessible] *************************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "LB: HTTP (80) is accessible."
+}
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+
+TASK [LB | Check High Port (60001) accessibility] ******************************
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+ok: [lb]
+
+TASK [LB | Assert High Port (60001) is accessible] *****************************
+ok: [lb] => {
+    "changed": false,
+    "msg": "LB: High Port (60001) is accessible."
+}
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+
+TASK [LB | Check configured disallowed port is inaccessible by attempting to connect (expect failure)] ***
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+fatal: [lb]: FAILED! => {"changed": false, "elapsed": 3, "msg": "Timeout when waiting for 138.197.119.236:12345"}
+...ignoring
+
+TASK [LB | Assert configured disallowed port is truly inaccessible] ************
+ok: [lb] => {
+    "changed": false,
+    "msg": "LB: Disallowed port 12345 is inaccessible (connect attempt failed as expected)."
+}
+skipping: [web1]
+skipping: [web2]
+skipping: [mon]
+
+TASK [Non-LB | Check Public SSH (22) is INACCESSIBLE from self] ****************
+skipping: [lb]
+fatal: [web2]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 159.203.165.157:22 to stop."}
+...ignoring
+fatal: [web1]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 45.55.90.213:22 to stop."}
+...ignoring
+fatal: [mon]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 104.236.20.191:22 to stop."}
+...ignoring
+
+TASK [Non-LB | Assert Public SSH (22) is INACCESSIBLE from self] ***************
+skipping: [lb]
+ok: [web1] => {
+    "changed": false,
+    "msg": "Non-LB: Public SSH (22) is not accessible from self (Correct)."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Non-LB: Public SSH (22) is not accessible from self (Correct)."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "Non-LB: Public SSH (22) is not accessible from self (Correct)."
+}
+
+TASK [Non-LB | Check Public HTTP (80) is INACCESSIBLE from self] ***************
+skipping: [lb]
+fatal: [web1]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 45.55.90.213:80 to stop."}
+...ignoring
+fatal: [mon]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 104.236.20.191:80 to stop."}
+...ignoring
+fatal: [web2]: FAILED! => {"changed": false, "elapsed": 5, "msg": "Timeout when waiting for 159.203.165.157:80 to stop."}
+...ignoring
+
+TASK [Non-LB | Assert Public HTTP (80) is INACCESSIBLE from self] **************
+skipping: [lb]
+ok: [web1] => {
+    "changed": false,
+    "msg": "Non-LB: Public HTTP (80) is not accessible from self (Correct)."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Non-LB: Public HTTP (80) is not accessible from self (Correct)."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "Non-LB: Public HTTP (80) is not accessible from self (Correct)."
+}
+
+TASK [Internal Host (Non-LB) | Verify UFW rule for SSH (22) from Loadbalancer] ***
+skipping: [lb]
+ok: [web1] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 22/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 22/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 22/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+
+TASK [Internal Host (Non-LB) | Verify UFW rule for HTTP (80) from Loadbalancer] ***
+skipping: [lb]
+ok: [web1] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 80/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 80/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+ok: [mon] => {
+    "changed": false,
+    "msg": "Internal Host (Non-LB): UFW rule ALLOW 80/tcp from Loadbalancer IP (138.197.119.236) found."
+}
+
+TASK [Webserver Host (Non-LB) | Verify UFW rule for HTTP (80) from Monitoring] ***
+skipping: [lb]
+skipping: [mon]
+ok: [web1] => {
+    "changed": false,
+    "msg": "Webserver Host (Non-LB): UFW rule ALLOW 80/tcp from Monitoring IP (104.236.20.191) found."
+}
+ok: [web2] => {
+    "changed": false,
+    "msg": "Webserver Host (Non-LB): UFW rule ALLOW 80/tcp from Monitoring IP (104.236.20.191) found."
+}
+
+PLAY RECAP *********************************************************************
+lb                         : ok=16   changed=0    unreachable=0    failed=0    skipped=7    rescued=0    ignored=1   
+mon                        : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=2   
+web1                       : ok=15   changed=0    unreachable=0    failed=0    skipped=8    rescued=0    ignored=2   
+web2                       : ok=15   changed=0    unreachable=0    failed=0    skipped=8    rescued=0    ignored=2   
+
+SUCCESS: All defined test playbooks passed.
+INFO: --- Testing Phase Complete ---

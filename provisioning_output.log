@@ -1,0 +1,229 @@
+INFO: --- Starting Provisioning Phase (Terraform) ---
+INFO: Terraform Init...
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Reusing previous version of digitalocean/digitalocean from the dependency lock file
+- Using previously-installed digitalocean/digitalocean v2.54.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+INFO: Terraform Apply...
+INFO: Using TF_VARS_FILE: terraform/do/environments/test.tfvars
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # digitalocean_droplet.cluster["lb"] will be created
+  + resource "digitalocean_droplet" "cluster" {
+      + backups              = false
+      + created_at           = (known after apply)
+      + disk                 = (known after apply)
+      + graceful_shutdown    = false
+      + id                   = (known after apply)
+      + image                = "ubuntu-20-04-x64"
+      + ipv4_address         = (known after apply)
+      + ipv4_address_private = (known after apply)
+      + ipv6                 = false
+      + ipv6_address         = (known after apply)
+      + locked               = (known after apply)
+      + memory               = (known after apply)
+      + monitoring           = false
+      + name                 = "lb"
+      + price_hourly         = (known after apply)
+      + price_monthly        = (known after apply)
+      + private_networking   = (known after apply)
+      + region               = "nyc3"
+      + resize_disk          = true
+      + size                 = "s-1vcpu-1gb"
+      + ssh_keys             = [
+          + "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ]
+      + status               = (known after apply)
+      + tags                 = [
+          + "lb",
+          + "public",
+        ]
+      + urn                  = (known after apply)
+      + user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c"
+      + vcpus                = (known after apply)
+      + volume_ids           = (known after apply)
+      + vpc_uuid             = (known after apply)
+    }
+
+  # digitalocean_droplet.cluster["mon"] will be created
+  + resource "digitalocean_droplet" "cluster" {
+      + backups              = false
+      + created_at           = (known after apply)
+      + disk                 = (known after apply)
+      + graceful_shutdown    = false
+      + id                   = (known after apply)
+      + image                = "ubuntu-20-04-x64"
+      + ipv4_address         = (known after apply)
+      + ipv4_address_private = (known after apply)
+      + ipv6                 = false
+      + ipv6_address         = (known after apply)
+      + locked               = (known after apply)
+      + memory               = (known after apply)
+      + monitoring           = false
+      + name                 = "mon"
+      + price_hourly         = (known after apply)
+      + price_monthly        = (known after apply)
+      + private_networking   = (known after apply)
+      + region               = "nyc3"
+      + resize_disk          = true
+      + size                 = "s-1vcpu-1gb"
+      + ssh_keys             = [
+          + "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ]
+      + status               = (known after apply)
+      + tags                 = [
+          + "internal",
+          + "mon",
+        ]
+      + urn                  = (known after apply)
+      + user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c"
+      + vcpus                = (known after apply)
+      + volume_ids           = (known after apply)
+      + vpc_uuid             = (known after apply)
+    }
+
+  # digitalocean_droplet.cluster["web1"] will be created
+  + resource "digitalocean_droplet" "cluster" {
+      + backups              = false
+      + created_at           = (known after apply)
+      + disk                 = (known after apply)
+      + graceful_shutdown    = false
+      + id                   = (known after apply)
+      + image                = "ubuntu-20-04-x64"
+      + ipv4_address         = (known after apply)
+      + ipv4_address_private = (known after apply)
+      + ipv6                 = false
+      + ipv6_address         = (known after apply)
+      + locked               = (known after apply)
+      + memory               = (known after apply)
+      + monitoring           = false
+      + name                 = "web1"
+      + price_hourly         = (known after apply)
+      + price_monthly        = (known after apply)
+      + private_networking   = (known after apply)
+      + region               = "nyc3"
+      + resize_disk          = true
+      + size                 = "s-1vcpu-1gb"
+      + ssh_keys             = [
+          + "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ]
+      + status               = (known after apply)
+      + tags                 = [
+          + "internal",
+          + "web",
+        ]
+      + urn                  = (known after apply)
+      + user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c"
+      + vcpus                = (known after apply)
+      + volume_ids           = (known after apply)
+      + vpc_uuid             = (known after apply)
+    }
+
+  # digitalocean_droplet.cluster["web2"] will be created
+  + resource "digitalocean_droplet" "cluster" {
+      + backups              = false
+      + created_at           = (known after apply)
+      + disk                 = (known after apply)
+      + graceful_shutdown    = false
+      + id                   = (known after apply)
+      + image                = "ubuntu-20-04-x64"
+      + ipv4_address         = (known after apply)
+      + ipv4_address_private = (known after apply)
+      + ipv6                 = false
+      + ipv6_address         = (known after apply)
+      + locked               = (known after apply)
+      + memory               = (known after apply)
+      + monitoring           = false
+      + name                 = "web2"
+      + price_hourly         = (known after apply)
+      + price_monthly        = (known after apply)
+      + private_networking   = (known after apply)
+      + region               = "nyc3"
+      + resize_disk          = true
+      + size                 = "s-1vcpu-1gb"
+      + ssh_keys             = [
+          + "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ]
+      + status               = (known after apply)
+      + tags                 = [
+          + "internal",
+          + "web",
+        ]
+      + urn                  = (known after apply)
+      + user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c"
+      + vcpus                = (known after apply)
+      + volume_ids           = (known after apply)
+      + vpc_uuid             = (known after apply)
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + inventory_ini = (known after apply)
+digitalocean_droplet.cluster["web2"]: Creating...
+digitalocean_droplet.cluster["mon"]: Creating...
+digitalocean_droplet.cluster["lb"]: Creating...
+digitalocean_droplet.cluster["web1"]: Creating...
+digitalocean_droplet.cluster["web1"]: Still creating... [10s elapsed]
+digitalocean_droplet.cluster["mon"]: Still creating... [10s elapsed]
+digitalocean_droplet.cluster["lb"]: Still creating... [10s elapsed]
+digitalocean_droplet.cluster["web2"]: Still creating... [10s elapsed]
+digitalocean_droplet.cluster["mon"]: Still creating... [20s elapsed]
+digitalocean_droplet.cluster["web2"]: Still creating... [20s elapsed]
+digitalocean_droplet.cluster["web1"]: Still creating... [20s elapsed]
+digitalocean_droplet.cluster["lb"]: Still creating... [20s elapsed]
+digitalocean_droplet.cluster["lb"]: Creation complete after 22s [id=497536989]
+digitalocean_droplet.cluster["web1"]: Still creating... [30s elapsed]
+digitalocean_droplet.cluster["mon"]: Still creating... [30s elapsed]
+digitalocean_droplet.cluster["web2"]: Still creating... [30s elapsed]
+digitalocean_droplet.cluster["web2"]: Creation complete after 32s [id=497536987]
+digitalocean_droplet.cluster["mon"]: Creation complete after 32s [id=497536986]
+digitalocean_droplet.cluster["web1"]: Creation complete after 32s [id=497536990]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+inventory_ini = <<EOT
+[webservers]
+
+web1 ansible_host=45.55.90.213 proxy=lb
+
+web2 ansible_host=159.203.165.157 proxy=lb
+
+
+[loadbalancer]
+lb ansible_host=138.197.119.236
+
+[monitoring]
+mon ansible_host=104.236.20.191 proxy=lb
+
+[internal:children]
+webservers
+monitoring
+
+[all:vars]
+ansible_user=ubuntu
+ansible_python_interpreter=/usr/bin/python3
+
+EOT
+INFO: Generating Ansible inventory from terraform output...
+INFO: Inventory file 'ansible/inventory.ini' created.
+INFO: --- Provisioning Phase Complete ---

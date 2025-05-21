@@ -1,0 +1,202 @@
+INFO: --- Starting Teardown Phase ---
+INFO: Tearing down the environment as requested...
+digitalocean_droplet.cluster["web1"]: Refreshing state... [id=497536990]
+digitalocean_droplet.cluster["lb"]: Refreshing state... [id=497536989]
+digitalocean_droplet.cluster["mon"]: Refreshing state... [id=497536986]
+digitalocean_droplet.cluster["web2"]: Refreshing state... [id=497536987]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # digitalocean_droplet.cluster["lb"] will be destroyed
+  - resource "digitalocean_droplet" "cluster" {
+      - backups              = false -> null
+      - created_at           = "2025-05-21T13:46:39Z" -> null
+      - disk                 = 25 -> null
+      - graceful_shutdown    = false -> null
+      - id                   = "497536989" -> null
+      - image                = "ubuntu-20-04-x64" -> null
+      - ipv4_address         = "138.197.119.236" -> null
+      - ipv4_address_private = "10.108.0.3" -> null
+      - ipv6                 = false -> null
+      - locked               = false -> null
+      - memory               = 1024 -> null
+      - monitoring           = false -> null
+      - name                 = "lb" -> null
+      - price_hourly         = 0.00893 -> null
+      - price_monthly        = 6 -> null
+      - private_networking   = true -> null
+      - region               = "nyc3" -> null
+      - resize_disk          = true -> null
+      - size                 = "s-1vcpu-1gb" -> null
+      - ssh_keys             = [
+          - "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ] -> null
+      - status               = "active" -> null
+      - tags                 = [
+          - "lb",
+          - "public",
+        ] -> null
+      - urn                  = "do:droplet:497536989" -> null
+      - user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c" -> null
+      - vcpus                = 1 -> null
+      - volume_ids           = [] -> null
+      - vpc_uuid             = "c38bc120-9497-42ab-9d0b-87d4cc621604" -> null
+    }
+
+  # digitalocean_droplet.cluster["mon"] will be destroyed
+  - resource "digitalocean_droplet" "cluster" {
+      - backups              = false -> null
+      - created_at           = "2025-05-21T13:46:39Z" -> null
+      - disk                 = 25 -> null
+      - graceful_shutdown    = false -> null
+      - id                   = "497536986" -> null
+      - image                = "ubuntu-20-04-x64" -> null
+      - ipv4_address         = "104.236.20.191" -> null
+      - ipv4_address_private = "10.108.0.4" -> null
+      - ipv6                 = false -> null
+      - locked               = false -> null
+      - memory               = 1024 -> null
+      - monitoring           = false -> null
+      - name                 = "mon" -> null
+      - price_hourly         = 0.00893 -> null
+      - price_monthly        = 6 -> null
+      - private_networking   = true -> null
+      - region               = "nyc3" -> null
+      - resize_disk          = true -> null
+      - size                 = "s-1vcpu-1gb" -> null
+      - ssh_keys             = [
+          - "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ] -> null
+      - status               = "active" -> null
+      - tags                 = [
+          - "internal",
+          - "mon",
+        ] -> null
+      - urn                  = "do:droplet:497536986" -> null
+      - user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c" -> null
+      - vcpus                = 1 -> null
+      - volume_ids           = [] -> null
+      - vpc_uuid             = "c38bc120-9497-42ab-9d0b-87d4cc621604" -> null
+    }
+
+  # digitalocean_droplet.cluster["web1"] will be destroyed
+  - resource "digitalocean_droplet" "cluster" {
+      - backups              = false -> null
+      - created_at           = "2025-05-21T13:46:39Z" -> null
+      - disk                 = 25 -> null
+      - graceful_shutdown    = false -> null
+      - id                   = "497536990" -> null
+      - image                = "ubuntu-20-04-x64" -> null
+      - ipv4_address         = "45.55.90.213" -> null
+      - ipv4_address_private = "10.108.0.2" -> null
+      - ipv6                 = false -> null
+      - locked               = false -> null
+      - memory               = 1024 -> null
+      - monitoring           = false -> null
+      - name                 = "web1" -> null
+      - price_hourly         = 0.00893 -> null
+      - price_monthly        = 6 -> null
+      - private_networking   = true -> null
+      - region               = "nyc3" -> null
+      - resize_disk          = true -> null
+      - size                 = "s-1vcpu-1gb" -> null
+      - ssh_keys             = [
+          - "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ] -> null
+      - status               = "active" -> null
+      - tags                 = [
+          - "internal",
+          - "web",
+        ] -> null
+      - urn                  = "do:droplet:497536990" -> null
+      - user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c" -> null
+      - vcpus                = 1 -> null
+      - volume_ids           = [] -> null
+      - vpc_uuid             = "c38bc120-9497-42ab-9d0b-87d4cc621604" -> null
+    }
+
+  # digitalocean_droplet.cluster["web2"] will be destroyed
+  - resource "digitalocean_droplet" "cluster" {
+      - backups              = false -> null
+      - created_at           = "2025-05-21T13:46:39Z" -> null
+      - disk                 = 25 -> null
+      - graceful_shutdown    = false -> null
+      - id                   = "497536987" -> null
+      - image                = "ubuntu-20-04-x64" -> null
+      - ipv4_address         = "159.203.165.157" -> null
+      - ipv4_address_private = "10.108.0.5" -> null
+      - ipv6                 = false -> null
+      - locked               = false -> null
+      - memory               = 1024 -> null
+      - monitoring           = false -> null
+      - name                 = "web2" -> null
+      - price_hourly         = 0.00893 -> null
+      - price_monthly        = 6 -> null
+      - private_networking   = true -> null
+      - region               = "nyc3" -> null
+      - resize_disk          = true -> null
+      - size                 = "s-1vcpu-1gb" -> null
+      - ssh_keys             = [
+          - "36:2f:f9:51:9e:e5:15:d3:f6:b3:82:89:54:00:ac:29",
+        ] -> null
+      - status               = "active" -> null
+      - tags                 = [
+          - "internal",
+          - "web",
+        ] -> null
+      - urn                  = "do:droplet:497536987" -> null
+      - user_data            = "1d79880bb42907df6bd1bfe47753276ad4c6216c" -> null
+      - vcpus                = 1 -> null
+      - volume_ids           = [] -> null
+      - vpc_uuid             = "c38bc120-9497-42ab-9d0b-87d4cc621604" -> null
+    }
+
+Plan: 0 to add, 0 to change, 4 to destroy.
+
+Changes to Outputs:
+  - inventory_ini = <<-EOT
+        [webservers]
+        
+        web1 ansible_host=45.55.90.213 proxy=lb
+        
+        web2 ansible_host=159.203.165.157 proxy=lb
+        
+        
+        [loadbalancer]
+        lb ansible_host=138.197.119.236
+        
+        [monitoring]
+        mon ansible_host=104.236.20.191 proxy=lb
+        
+        [internal:children]
+        webservers
+        monitoring
+        
+        [all:vars]
+        ansible_user=ubuntu
+        ansible_python_interpreter=/usr/bin/python3
+    EOT -> null
+digitalocean_droplet.cluster["lb"]: Destroying... [id=497536989]
+digitalocean_droplet.cluster["web2"]: Destroying... [id=497536987]
+digitalocean_droplet.cluster["mon"]: Destroying... [id=497536986]
+digitalocean_droplet.cluster["web1"]: Destroying... [id=497536990]
+digitalocean_droplet.cluster["web1"]: Still destroying... [id=497536990, 10s elapsed]
+digitalocean_droplet.cluster["mon"]: Still destroying... [id=497536986, 10s elapsed]
+digitalocean_droplet.cluster["web2"]: Still destroying... [id=497536987, 10s elapsed]
+digitalocean_droplet.cluster["lb"]: Still destroying... [id=497536989, 10s elapsed]
+digitalocean_droplet.cluster["lb"]: Still destroying... [id=497536989, 20s elapsed]
+digitalocean_droplet.cluster["web1"]: Still destroying... [id=497536990, 20s elapsed]
+digitalocean_droplet.cluster["mon"]: Still destroying... [id=497536986, 20s elapsed]
+digitalocean_droplet.cluster["web2"]: Still destroying... [id=497536987, 20s elapsed]
+digitalocean_droplet.cluster["lb"]: Destruction complete after 22s
+digitalocean_droplet.cluster["web2"]: Destruction complete after 22s
+digitalocean_droplet.cluster["web1"]: Destruction complete after 23s
+digitalocean_droplet.cluster["mon"]: Destruction complete after 23s
+
+Destroy complete! Resources: 4 destroyed.
+INFO: Environment teardown complete.
+INFO: --- Teardown Phase Complete ---
