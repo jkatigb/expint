@@ -1,9 +1,10 @@
 ---
-- name: Ensure expensify exists
+- name: Ensure expensify user exists and is in the sudo group
   ansible.builtin.user:
-    name: expensify
+    name: "{{ expensify_user }}"
     shell: /bin/bash
     groups: sudo
+    append: true
     create_home: true
 
 - name: Add expensify's SSH key as authorized_key
@@ -11,3 +12,15 @@
     user: "{{ expensify_user }}"
     state: present
     key: "{{ expensify_pubkey }}"
+
+- name: Allow 'expensify' user to run sudo without a password
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/90-expensify-nopasswd
+    state: present
+    regexp: "^{{ expensify_user }} ALL="
+    line: "{{ expensify_user }} ALL=(ALL) NOPASSWD: ALL"
+    create: true
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
