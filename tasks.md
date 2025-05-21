@@ -1,0 +1,26 @@
+- [ ] Detailed notes of your work - challenges, design choices, etc.
+- [ ] Set up two web servers: [Verify: Nginx service running](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_webservers.yml#L22)
+    - [ ] Server 1 serves 'a' at index.html [Verify: Content contains hostname (check for 'a')](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_webservers.yml#L44)
+    - [ ] Server 2 serves 'b' at index.html [Verify: Content contains hostname (check for 'b')](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_webservers.yml#L44)
+- [ ] Add a load balancer on the 3rd server to load balance between the webservers. [Verify: LB Test Play Start](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L49)
+- [ ] Configure the load balancer: [Verify: LB Test Play Start](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L49)
+    - [ ] Choose and implement a balancing scheme (round robin, random, load based, etc.). [Verify: SRVID Distribution](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L90)
+    - [ ] Configure sticky sessions: [Verify: Sticky Sessions (Normal) Play](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L145)
+        - [ ] Same host hits the same webserver for repeat requests. [Verify: Sticky Normal Assertion](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L174)
+        - [ ] Switch only when a webserver goes down. [Verify: Sticky Failover Request to S2](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L208)
+        - [ ] Do not switch back when the webserver goes back up. [Verify: Sticky No Switch Back Assertion](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L283)
+    - [ ] Pass the original requesting IP to the webservers. [Verify: X-Forwarded-For Assertion](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L132)
+    - [ ] Forward port range 60000-65000 on the load balancer to port 80 on the web servers. [Verify: Port Forwarding Test](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_loadbalancer.yml#L62)
+- [ ] Add Nagios to the 4th server. [Verify: Nagios Package Installed](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L23)
+- [ ] Configure Nagios to monitor the servers and the load balancer. [Verify: Webserver Config Exists](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L45) <!-- Also see LB config check L56 -->
+- [ ] Write a custom Nagios check in Python: [Verify: Custom Check Script Exists](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L67)
+    - [ ] Reads in the list of webservers from a file. [Verify: Webserver List File Exists](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L85)
+    - [ ] Shows a warning if one of the webservers is offline. [Verify: Custom Check WARNING Output](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L125)
+    - [ ] Shows a failure if both are offline. [Verify: Custom Check CRITICAL/FAILURE Output](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_monitoring.yml#L163)
+- [ ] Add a user 'expensify' to all servers. [Verify: Security Playbook Top](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L1) <!-- User setup implicitly tested -->
+- [ ] Grant sudo access to the 'expensify' user. [Verify: Security Playbook Top](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L1) <!-- User setup implicitly tested -->
+- [ ] Install attached public keys for 'expensify' user authentication. [Verify: Security Playbook Top](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L1) <!-- User setup implicitly tested -->
+- [ ] Lock down the network: [Verify: UFW Service Active](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L31)
+    - [ ] Allow only one server public SSH access. [Verify: LB SSH Accessible](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L67) <!-- Non-LB SSH Inaccessible L131 -->
+    - [ ] Enable SSH access from that server to the others. [Verify: Internal SSH from LB Rule](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L155)
+    - [ ] Block all other unused/unnecessary ports. [Verify: UFW Default Deny Policy](https://github.com/jkatigb/expint/blob/main/ansible/tests/test_security.yml#L48) <!-- Also see LB disallowed port L112 -->
